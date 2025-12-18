@@ -1,0 +1,127 @@
+<p-toast></p-toast>
+<form
+  [formGroup]="helperForm"
+  (ngSubmit)="onSubmitHelper()"
+  class="flex flex-col gap-6 py-6 px-4 bg-white border border-gray-200 rounded-xl shadow-md max-w-xl mx-auto"
+>
+  <!-- Seleção de Técnico -->
+  <div class="flex flex-col gap-2">
+    <label for="technician" class="text-sm text-slate-600 font-medium"
+      >Técnico</label
+    >
+    <p-select
+      id="technician"
+      [options]="technicians"
+      optionLabel="label"
+      optionValue="value"
+      formControlName="technicianId"
+      placeholder="Selecione um técnico"
+      appendTo="body"
+      class="w-full"
+    ></p-select>
+  </div>
+
+  <!-- Intervalo de Datas -->
+  <div class="flex flex-col md:flex-row gap-4">
+    <div class="flex-1">
+      <label for="start" class="text-sm text-slate-600 font-medium"
+        >Data Inicial</label
+      >
+      <p-datepicker
+        formControlName="start"
+        dateFormat="dd/mm/yy"
+        placeholder="Data Inicial"
+        inputId="calendar-start"
+        appendTo="body"
+        [showTime]="true"
+        [hourFormat]="'24'"
+        dataType="date"
+        class="w-full"
+      ></p-datepicker>
+    </div>
+
+    <div class="flex-1">
+      <label for="end" class="text-sm text-slate-600 font-medium"
+        >Data Final</label
+      >
+      <p-datepicker
+        formControlName="end"
+        dateFormat="dd/mm/yy"
+        placeholder="Data Final"
+        inputId="calendar-end"
+        appendTo="body"
+        [showTime]="true"
+        [hourFormat]="'24'"
+        dataType="date"
+        class="w-full"
+      ></p-datepicker>
+    </div>
+  </div>
+
+  <!-- Botões -->
+  @if (!editingHelperId) {
+  <div class="pt-4">
+    <div
+      class="flex w-full flex-col justify-center md:flex-row gap-3 items-center"
+    >
+      <p-button type="submit" severity="success" label="Adicionar"></p-button>
+    </div>
+  </div>
+  } @else {
+  <div class="pt-4">
+    <div class="flex flex-row justify-center gap-4">
+      <p-button
+        type="submit"
+        severity="success"
+        icon="pi pi-check"
+        label="Salvar"
+      >
+      </p-button>
+      <p-button
+        type="button"
+        severity="warn"
+        label="Cancelar"
+        (onClick)="editingHelperId = null; helperForm.reset()"
+      ></p-button>
+    </div>
+  </div>
+  }
+
+  <!-- Lista de Helpers -->
+  <ul class="rounded-xl border border-gray-200 divide-y divide-gray-100 mt-4">
+    <li *ngFor="let helper of helpers" class="p-4">
+      <div
+        class="flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+      >
+        <div class="flex-1">
+          <div class="text-base font-semibold text-slate-800">
+            {{ helper.technicianName }}
+          </div>
+          <div class="text-xs text-gray-500 mt-1">
+            {{ helper.start }} — {{ helper.end }}
+          </div>
+        </div>
+
+        <div class="flex pt-4 gap-2 items-center mt-2 md:mt-0">
+          <p-button
+            icon="pi pi-pencil"
+            pTooltip="Editar"
+            [rounded]="true"
+            severity="info"
+            [text]="true"
+            (onClick)="editHelper(helper)"
+          ></p-button>
+
+          <p-button
+            icon="pi pi-trash"
+            pTooltip="Excluir"
+            [rounded]="true"
+            [text]="true"
+            severity="danger"
+            (onClick)="deleteTechnicianHelper(helper.id)"
+          ></p-button>
+        </div>
+      </div>
+    </li>
+  </ul>
+</form>
