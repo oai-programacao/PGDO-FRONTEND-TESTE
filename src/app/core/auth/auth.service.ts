@@ -1,5 +1,5 @@
 import { Injectable, inject } from "@angular/core";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { BehaviorSubject, Observable, of, throwError } from "rxjs";
 import {
   catchError,
@@ -94,8 +94,11 @@ export class AuthService {
   }
 
   login(credentials: LoginDto): Observable<LoginResponseDto> {
+     const headers = new HttpHeaders({
+      'X-Client-Type': 'SELLER',
+    });
     return this.http
-      .post<LoginResponseDto>(`${this.apiUrl}/login`, credentials)
+      .post<LoginResponseDto>(`${this.apiUrl}/login`, { headers, ...credentials })
       .pipe(
         tap((response) => {
           console.log("Login response recebido:", response);
