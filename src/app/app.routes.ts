@@ -24,50 +24,6 @@ export const routes: Routes = [
         title: "Home", // Título da página, pode ser usado para SEO ou breadcrumbs
         // Não precisa de authGuard aqui de novo, pois a rota pai 'app' já está protegida
       },
-
-      {
-        path: "clientes/cliente-cadastrados",
-        loadComponent: () =>
-          import(
-            "./features/register-new-client/pages/list-client-register/list-client-register.component"
-          ).then((m) => m.ListClientRegisterComponent),
-        title: "Clientes Cadastrados",
-      },
-
-      {
-        path: "clientes/cliente-cadastrar",
-        loadComponent: () =>
-          import(
-            "./features/register-new-client/pages/register-new-client/register-new-client.component"
-          ).then((m) => m.RegisterNewClientComponent),
-        title: "Cadastrar Novo Cliente",
-
-      },
-      {
-        path: "clientes/pesquisar-cliente",
-        loadComponent: () =>
-          import(
-            "./features/register-new-client/pages/search-client/search-client.component"
-          ).then((m) => m.SearchClientComponent),
-        title: "Pesquisar Cliente",
-      },
-      {
-        path: "clientes/confirmar-instalacao",
-        loadComponent: () =>
-          import(
-            "./features/register-new-client/pages/confirm-installation/confirm-installation.component"
-          ).then((m) => m.ConfirmInstalationComponent),
-        title: "Confirmar Instalação",
-      },
-
-      {
-        path: "clientes/procurar",
-        loadComponent: () =>
-          import(
-            "./features/client-financial/pages/search-client-financial/search-client-financial.component"
-          ).then((m) => m.SearchClientFinancialComponent),
-        title: "Clientes",
-      },
       {
         path: "colaboradores",
         loadComponent: () =>

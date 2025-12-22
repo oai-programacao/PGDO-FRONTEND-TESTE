@@ -25,21 +25,6 @@ export class MainLayoutComponent implements OnDestroy {
       icon: "pi pi-home",
       route: "/app/home",
     },
-    // Clientes
-    {
-      id: "clients",
-      label: "Clientes",
-      icon: "pi pi-users",
-      allowedRoles: [
-        "ROLE_ADMIN",
-        "ROLE_STORE_MANAGER",
-        "ROLE_USER",
-        "ROLE_STORE_EMPLOYEE",
-        "ROLE_CDS",
-        "ROLE_TOWER"
-      ],
-      expanded: false,
-    },
     // Companhia
     {
       id: "company",
