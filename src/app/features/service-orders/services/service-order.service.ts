@@ -29,7 +29,7 @@ export class ServiceOrderService {
 
   getContractDetails(contractNumber: number): Observable<any> {
     return this.http.post<any>(
-      `${environment.apiUrl}/rbx/consultar-contratos?filtro=Numero=${contractNumber}`,
+      `${environment.apiUrl}/contract/rbx/consultar-contratos?filtro=Numero=${contractNumber}`,
       null
     );
   }
