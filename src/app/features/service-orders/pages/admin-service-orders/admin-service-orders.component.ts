@@ -739,7 +739,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   showExtraTag(os: any): boolean {
     return (
       !!os?.responsibleSeller &&
-      (os.typeOfOs === "INSTALLATION" || os.typeOfOs === "CHANGE_ADDRESS")
+      (os.typeOfOs === "INSTALLATION" || os.typeOfOs === "CHANGE_OF_ADDRESS")
     );
   }
 
