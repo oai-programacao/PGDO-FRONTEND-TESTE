@@ -1,4 +1,3 @@
-import { ViewEmployeeDto } from "./employee.model";
 import { CommandArea, City, ClientType, TypeOfOs, Period, Technology, ServiceOrderStatus, SubTypeServiceOrder } from "./enums.model";
 import { ViewTechnicianDto } from "./technician.model";
 
@@ -23,6 +22,7 @@ export interface ViewServiceOrderDto {
   clientName: string;
   phone1: string;
   phone2?: string;
+  responsibleSeller?: string
   responsiblePerson?: string
   commandArea: CommandArea;
   city: City;

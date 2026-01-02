@@ -283,7 +283,7 @@ export class CreateServiceOrderComponent implements OnInit, OnDestroy {
         this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Número do contrato é inválido ou não foi preenchido.' });
         return;
     }
-    // Habilitar campos para edição após a busca, ou mantê-los desabilitados e apenas exibir
+    
     this.serviceOrderService
       .getContractDetails(contractNumberControl.value)
       .subscribe({
