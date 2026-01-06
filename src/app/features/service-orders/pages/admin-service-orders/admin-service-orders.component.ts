@@ -745,11 +745,11 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
 
   getExtraTagLabel(os: any): string {
     if (os.typeOfOs === "INSTALLATION") {
-      return "VENDA 💵";
+      return "LOJA | VENDA 💵";
     }
 
     if (os.typeOfOs === "CHANGE_OF_ADDRESS") {
-      return "MUDANÇA DE ENDEREÇO 🔄";
+      return "LOJA | MUDANÇA DE ENDEREÇO 🔄";
     }
 
     return "";
