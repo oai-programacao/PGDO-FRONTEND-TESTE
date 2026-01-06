@@ -389,7 +389,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
         }),
     });
   }
-
+  
   updateServiceOrder(index: number): void {
     const formGroup = this.orders.at(index) as FormGroup;
     const id = formGroup.get("id")?.value;
@@ -450,7 +450,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
           },
           { emitEvent: false }
         );
-        // Se status for "Executado", recarrega a lista
+        
         const updatedStatus = updated?.status ?? dto.status ?? [];
         if (updatedStatus.includes(ServiceOrderStatus.EXECUTED)) {
           this.loadServiceOrders();
@@ -745,11 +745,11 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
 
   getExtraTagLabel(os: any): string {
     if (os.typeOfOs === "INSTALLATION") {
-      return "VENDA";
+      return "VENDA 💵";
     }
 
     if (os.typeOfOs === "CHANGE_OF_ADDRESS") {
-      return "MUDANÇA DE ENDEREÇO";
+      return "MUDANÇA DE ENDEREÇO 🔄";
     }
 
     return "";
