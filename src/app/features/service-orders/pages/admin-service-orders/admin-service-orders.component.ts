@@ -424,6 +424,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       return;
     }
 
+
     const dto: UpdateServiceOrderDto = {
       scheduleDate: formGroup.get("scheduleDate")?.value || null,
       period: formGroup.get("period")?.value || null,
