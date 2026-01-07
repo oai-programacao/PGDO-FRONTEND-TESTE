@@ -304,6 +304,7 @@
                   severity="info"
                 ></p-tag>
 
+                <!-- Ícone informativo -->
                 <span
                   *ngIf="os.typeOfOs === 'INSTALLATION'"
                   class="info-icon"
@@ -311,9 +312,8 @@
                   tooltipPosition="top"
                   tooltipStyleClass="financial-tooltip"
                 >
-                  !
+                  ℹ️
                 </span>
-                
               </div>
             </td>
             <td>{{ getTypeOfOsLabel(os.typeOfOs) }}</td>
