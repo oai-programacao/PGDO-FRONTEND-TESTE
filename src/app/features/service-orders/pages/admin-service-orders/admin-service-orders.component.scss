@@ -10,23 +10,6 @@ nav {
   padding: 4px 8px;
 }
 
-.status-executado {
-  background-color: rgb(59, 231, 122, 0.5)
-}
-.status-andamento{
-  background-color: rgb(70, 149, 253, 0.5);
-}
-.status-cancelado{
-  background-color: rgb(231, 9, 53, 0.5);
-}
-.status-reagendado{
-  background-color: rgb(252, 248, 48, 0.5);
-}
-
-
-/* ============================================
-   ESTILOS PARA CÉLULA DE CLIENTE MELHORADA
-   ============================================ */
 
 /* Célula da Tabela */
 .client-info-cell {
@@ -185,38 +168,8 @@ nav {
   padding: 0.75rem !important;
 }
 
-/* ============================================
-   ESTILOS PARA A TABELA PRINCIPAL
-   ============================================ */
 
-/* Melhorias gerais da tabela */
-::ng-deep .p-datatable {
-  .p-datatable-thead > tr > th {
-    background: #f8fafc;
-    color: #1e293b;
-    font-weight: 600;
-    font-size: 0.875rem;
-    padding: 1rem 0.75rem;
-    border-bottom: 2px solid #e2e8f0;
-  }
 
-  .p-datatable-tbody > tr {
-    transition: background 0.2s ease;
-  }
-
-  .p-datatable-tbody > tr:hover {
-    background: #f9fafb;
-  }
-
-  .p-datatable-tbody > tr > td {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: middle;
-  }
-}
-
-/* Estilos de Status */
 ::ng-deep .status-executado {
   .p-select-label {
     color: #047857 !important;
