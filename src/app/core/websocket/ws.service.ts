@@ -19,14 +19,12 @@ export class WsService {
     if (this.activated) return;
     this.activated = true;
 
-    // Pega o token JWT do localStorage
     const token = localStorage.getItem("pgdo_access_token");
     if (!token) {
       console.warn("Token não encontrado, WS não será inicializado");
       return;
     }
 
-    // Decodifica o email do token (sub)
     const payload = JSON.parse(atob(token.split(".")[1]));
     const email = payload.sub;
 
@@ -46,7 +44,6 @@ export class WsService {
       console.log("Estado da conexão:", state)
     );
 
-    // Subscribing ao destino específico do usuário
     this.rxStompService
       .watch(`/user/${email}/topic/notifications`)
       .subscribe((msg) => {
@@ -115,7 +112,6 @@ export class WsService {
           break;
       }
 
-      // Dispara o observable para subscribers globais
       this.notificationsSubject.next({ eventName, data });
     });
   }
