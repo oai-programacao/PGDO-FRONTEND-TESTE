@@ -108,13 +108,11 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   private readonly confirmationService = inject(ConfirmationService);
   private destroy$ = new Subject<void>();
   private pendingFirstValue: number | null = null;
-
+  private allowStatusUpdate = new Set<number>();
   public ServiceOrderStatus = ServiceOrderStatus;
 
   technicians: ViewTechnicianDto[] = [];
   technicianOptions: { label: string; value: string | null }[] = [];
-  // os: ViewServiceOrderDto[] = [];
-  // expiredOs: ViewServiceOrderDto[] = [];
   dataSource: ViewServiceOrderDto[] = [];
   expiredOsCount = 0;
   showingExpired = false;
@@ -134,6 +132,71 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       value: ServiceOrderStatus[key as keyof typeof ServiceOrderStatus],
     })),
   ];
+
+  getStatusOptions(os: ViewServiceOrderDto): any[] {
+    const ALL_STATUSES = Object.entries(ServiceOrderStatusLabels).map(
+      ([key, label]) => ({
+        label,
+        value: ServiceOrderStatus[key as keyof typeof ServiceOrderStatus],
+      })
+    );
+
+    const VENDA_ALLOWED = [
+      ServiceOrderStatus.UNDEFINED,
+      ServiceOrderStatus.IN_PRODUCTION,
+      ServiceOrderStatus.RESCHEDULED,
+    ];
+
+    const isVenda =
+      os.typeOfOs?.includes(TypeOfOs.INSTALLATION) && !!os.responsibleSeller;
+
+    return isVenda
+      ? ALL_STATUSES.filter((o) => VENDA_ALLOWED.includes(o.value))
+      : ALL_STATUSES;
+  }
+
+  onStatusChange(
+    newStatus: ServiceOrderStatus,
+    os: ViewServiceOrderDto,
+    index: number
+  ) {
+    const control = this.orders.at(index).get("status");
+    if (!control) return;
+
+    const currentStatus = os.status?.[0];
+
+    const isVenda =
+      os.typeOfOs?.includes(TypeOfOs.INSTALLATION) && !!os.responsibleSeller;
+
+    // 🔒 Não permite alterar após EXECUTED
+    if (isVenda && currentStatus === ServiceOrderStatus.EXECUTED) {
+      control.setValue(currentStatus, { emitEvent: false });
+      return;
+    }
+
+    // ⚠️ Confirmação obrigatória ao iniciar produção
+    if (isVenda && newStatus === ServiceOrderStatus.IN_PRODUCTION) {
+      this.confirmationService.confirm({
+        header: "Confirmação",
+        message:
+          "Deseja mesmo iniciar essa OS de venda? O cliente será notificado via WhatsApp.",
+        icon: "pi pi-exclamation-triangle",
+
+        accept: () => {
+          this.allowStatusUpdate.add(index);
+          control.setValue(newStatus);
+        },
+
+        reject: () => {
+          control.setValue(currentStatus, { emitEvent: false });
+        },
+      });
+      return;
+    }
+
+    // outros casos permitidos
+    this.allowStatusUpdate.add(index);
+  }
 
   subStatusOptions: any[] = [
     ...Object.entries(SubTypeServiceOrderLabels).map(([key, value]) => ({
@@ -389,7 +452,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
         }),
     });
   }
-  
+
   updateServiceOrder(index: number): void {
     const formGroup = this.orders.at(index) as FormGroup;
     const id = formGroup.get("id")?.value;
@@ -400,7 +463,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     const startOfOs = formGroup.get("startOfOs")?.value;
     const endOfOs = formGroup.get("endOfOs")?.value;
 
-    // Validações
     if (!technician && (startOfOs || endOfOs)) {
       this.messageService.add({
         severity: "warn",
@@ -423,7 +485,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       formGroup.get("endOfOs")?.setValue(null, { emitEvent: false });
       return;
     }
-
 
     const dto: UpdateServiceOrderDto = {
       scheduleDate: formGroup.get("scheduleDate")?.value || null,
@@ -451,7 +512,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
           },
           { emitEvent: false }
         );
-        
+
         const updatedStatus = updated?.status ?? dto.status ?? [];
         if (updatedStatus.includes(ServiceOrderStatus.EXECUTED)) {
           this.loadServiceOrders();

@@ -331,7 +331,8 @@
                   <div
                     *ngIf="os.typeOfOs === 'INSTALLATION'"
                     class="installation-alert"
-                    pTooltip="Após a Ordem de Serviço ficar com o status EXECUTADA, o carnê financeiro referente a esta venda será lançado automaticamente."
+                    pTooltip="Após a Ordem de Serviço ficar com o status EXECUTADA, o carnê financeiro referente a esta venda será lançado automaticamente.
+                    Essa OS não pode ser excluída, apenas reagendada pois de fato precisa ser CONCLUIDA!"
                     tooltipPosition="top"
                   >
                     <i class="pi pi-info-circle"></i>
@@ -402,11 +403,12 @@
             </td>
             <td>
               <p-select
-                [options]="statusOptions"
+                [options]="getStatusOptions(os)"
                 formControlName="status"
                 optionLabel="label"
                 optionValue="value"
                 appendTo="body"
+                (onChange)="onStatusChange($event.value, os, i)"
                 [styleClass]="
                   'min-w-full ' +
                   (orders.controls[i]!.get('status')?.value ===
