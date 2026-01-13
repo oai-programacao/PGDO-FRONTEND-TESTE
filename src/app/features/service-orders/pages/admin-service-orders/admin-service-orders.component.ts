@@ -108,8 +108,9 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   private readonly confirmationService = inject(ConfirmationService);
   private destroy$ = new Subject<void>();
   private pendingFirstValue: number | null = null;
-  private allowStatusUpdate = new Set<number>();
   public ServiceOrderStatus = ServiceOrderStatus;
+  public TypeOfOs = TypeOfOs;
+  private blockUpdate = new Set<number>();
 
   technicians: ViewTechnicianDto[] = [];
   technicianOptions: { label: string; value: string | null }[] = [];
@@ -557,6 +558,10 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
         control.valueChanges
           .pipe(debounceTime(5000), takeUntil(this.destroy$))
           .subscribe(() => {
+            if (this.blockUpdate.has(index)) {
+              this.blockUpdate.delete(index);
+              return; 
+            }
             this.updateServiceOrder(index);
           });
       });

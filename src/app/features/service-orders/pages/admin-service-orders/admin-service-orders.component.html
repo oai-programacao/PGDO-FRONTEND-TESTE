@@ -409,7 +409,7 @@
                 formControlName="status"
                 optionLabel="label"
                 [disabled]="
-                  os.typeOfOs?.includes('INSTALLATION') &&
+                  os.typeOfOs?.includes(TypeOfOs.INSTALLATION) &&
                   os.responsibleSeller &&
                   os.status?.includes(ServiceOrderStatus.EXECUTED)
                 "
