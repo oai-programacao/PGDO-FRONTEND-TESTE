@@ -821,4 +821,37 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
 
     return "";
   }
+
+  onStatusChange(
+    newStatus: ServiceOrderStatus,
+    os: ViewServiceOrderDto,
+    index: number
+  ) {
+    const control = this.orders.at(index).get("status");
+    if (!control) return;
+
+    const currentStatus = os.status?.[0];
+
+    const isVenda =
+      os.typeOfOs?.includes(TypeOfOs.INSTALLATION) && !!os.responsibleSeller;
+
+    if (isVenda && newStatus === ServiceOrderStatus.IN_PRODUCTION) {
+      this.confirmationService.confirm({
+        header: "Confirmação",
+        message:
+          "Deseja mesmo iniciar essa Ordem de Serviço de venda?\nO cliente será notificado via WhatsApp que o técnico está a caminho com as informações da OS\nLembrando que o Status Executado é inserido assim que finalizar o horário de produção\nNão será possível reverter.",
+        icon: "pi pi-exclamation-triangle",
+
+        accept: () => {
+          control.setValue(newStatus);
+        },
+
+        reject: () => {
+          control.setValue(currentStatus, { emitEvent: false });
+        },
+      });
+
+      return;
+    }
+  }
 }

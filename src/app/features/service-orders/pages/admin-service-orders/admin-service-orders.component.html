@@ -329,7 +329,9 @@
                   ></p-tag>
 
                   <div
-                    *ngIf="os.typeOfOs === 'INSTALLATION' && os.responsibleSeller"
+                    *ngIf="
+                      os.typeOfOs === 'INSTALLATION' && os.responsibleSeller
+                    "
                     class="installation-alert"
                     pTooltip="Após a Ordem de Serviço ficar com o status EXECUTADA, o carnê financeiro referente a esta venda será lançado automaticamente.
                     Essa OS não pode ser excluída, apenas reagendada pois de fato precisa ser CONCLUIDA!"
@@ -406,8 +408,14 @@
                 [options]="getStatusOptions(os)"
                 formControlName="status"
                 optionLabel="label"
+                [disabled]="
+                  os.typeOfOs?.includes('INSTALLATION') &&
+                  os.responsibleSeller &&
+                  os.status?.includes(ServiceOrderStatus.EXECUTED)
+                "
                 optionValue="value"
                 appendTo="body"
+                (onChange)="onStatusChange($event.value,os,i)"
                 [styleClass]="
                   'min-w-full ' +
                   (orders.controls[i]!.get('status')?.value ===
