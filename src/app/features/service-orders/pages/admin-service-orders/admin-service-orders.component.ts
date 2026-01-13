@@ -427,6 +427,21 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     const endOfOs = formGroup.get("endOfOs")?.value;
     const status = formGroup.get("status")?.value;
 
+    if (
+      isVenda &&
+      currentOs?.status?.includes(ServiceOrderStatus.EXECUTED) &&
+      status !== ServiceOrderStatus.EXECUTED
+    ) {
+      this.messageService.add({
+        severity: "warn",
+        summary: "Ação não permitida",
+        detail:
+          "Uma Ordem de Serviço de venda já EXECUTADA não pode ter seu status alterado.",
+      });
+      formGroup.get("status")?.setValue(currentOs.status, { emitEvent: false });
+      return;
+    }
+
     if (!technician && (startOfOs || endOfOs)) {
       this.messageService.add({
         severity: "warn",
@@ -461,7 +476,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
         detail:
           "Para iniciar uma OS de venda é obrigatório informar técnico, horário de início e horário de fim.",
       });
-
       formGroup.get("status")?.setValue(currentOs.status, { emitEvent: false });
       return;
     }
@@ -473,8 +487,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
         detail:
           "Para OS de venda da loja, não é possível colocar o status EXECUTADA manualmente, é definido automaticamente pelo sistema pelo fim do horário de EM PRODUÇÃO.",
       });
-
-      // reverte visualmente
       formGroup.get("status")?.setValue(currentOs.status, { emitEvent: false });
       return;
     }
