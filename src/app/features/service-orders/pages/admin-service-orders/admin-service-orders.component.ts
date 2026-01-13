@@ -643,19 +643,18 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       });
   }
 
-  private populateOrdersArray(): void {
-    const ordersArray = this.osGroup.get("orders") as FormArray;
+  private populateOrdersArray() {
+    setTimeout(() => {
+      const serviceOrderGroups = this.dataSource.map((order) =>
+        this.createServiceOrderGroup(order)
+      );
+      const newOrdersArray = this.fb.array(serviceOrderGroups);
+      this.osGroup.setControl("orders", newOrdersArray);
 
-    ordersArray.clear();
-
-    this.dataSource.forEach((order) => {
-      ordersArray.push(this.createServiceOrderGroup(order));
-    });
-
-    this.isLoading = false;
-    this.cdr.markForCheck();
-
-    this.setupFormListeners();
+      this.isLoading = false;
+      this.cdr.markForCheck();
+      this.setupFormListeners();
+    }, 0);
   }
 
   ngAfterViewChecked(): void {
@@ -841,17 +840,14 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     const isVenda =
       os.typeOfOs?.includes(TypeOfOs.INSTALLATION) && !!os.responsibleSeller;
 
-    // 👉 Só intercepta VENDA indo para EM PRODUÇÃO
     if (isVenda && newStatus === ServiceOrderStatus.IN_PRODUCTION) {
-      // 🔒 Reverte imediatamente (impede update automático)
       control.setValue(previousStatus, { emitEvent: false });
 
       this.confirmationService.confirm({
         header: "Confirmação",
         message: `
 Deseja mesmo iniciar essa Ordem de Serviço de venda?<br><br>
-O cliente será notificado via WhatsApp que o técnico está a caminho com as informações da OS.<br><br>
-O status <b>EXECUTADO</b> será inserido automaticamente.<br>
+O cliente será notificado via WhatsApp que o técnico está a caminho.<br><br>
 <b>Não será possível reverter.</b>
       `,
         icon: "pi pi-exclamation-triangle",
