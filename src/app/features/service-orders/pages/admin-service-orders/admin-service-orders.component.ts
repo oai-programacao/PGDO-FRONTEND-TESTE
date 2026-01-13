@@ -110,6 +110,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   private pendingFirstValue: number | null = null;
   public ServiceOrderStatus = ServiceOrderStatus;
   public TypeOfOs = TypeOfOs;
+  private blockUpdate = new Set<number>();
 
   technicians: ViewTechnicianDto[] = [];
   technicianOptions: { label: string; value: string | null }[] = [];
@@ -557,6 +558,11 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
         control.valueChanges
           .pipe(debounceTime(5000), takeUntil(this.destroy$))
           .subscribe(() => {
+            if (this.blockUpdate.has(index)) {
+              this.blockUpdate.delete(index); // libera depois do primeiro bloqueio
+              return;
+            }
+
             this.updateServiceOrder(index);
           });
       });
@@ -842,7 +848,9 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       newStatus === ServiceOrderStatus.IN_PRODUCTION &&
       currentStatus !== ServiceOrderStatus.IN_PRODUCTION
     ) {
-      // bloqueia alteração automática do select
+      
+      this.blockUpdate.add(index);
+      
       control.setValue(currentStatus, { emitEvent: false });
 
       this.confirmationService.confirm({
@@ -868,5 +876,4 @@ Lembrando que o status <b>EXECUTADO</b> é inserido automaticamente ao finalizar
       return;
     }
   }
-  
 }
