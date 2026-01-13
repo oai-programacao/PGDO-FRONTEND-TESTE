@@ -836,16 +836,20 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       os.typeOfOs?.includes(TypeOfOs.INSTALLATION) && !!os.responsibleSeller;
 
     if (isVenda && newStatus === ServiceOrderStatus.IN_PRODUCTION) {
+      control.setValue(currentStatus, { emitEvent: false });
+
       this.confirmationService.confirm({
         header: "Confirmação",
-        message:
-          "Deseja mesmo iniciar essa Ordem de Serviço de venda?\nO cliente será notificado via WhatsApp que o técnico está a caminho com as informações da OS\nLembrando que o Status Executado é inserido assim que finalizar o horário de produção\nNão será possível reverter.",
+        message: `
+    Deseja mesmo iniciar essa Ordem de Serviço de venda?<br><br>
+    O cliente será notificado via WhatsApp que o técnico está a caminho com as informações da OS.<br><br>
+    Lembrando que o status <b>EXECUTADO</b> é inserido automaticamente ao finalizar o horário de produção.<br>
+    <b>Não será possível reverter.</b>
+  `,
         icon: "pi pi-exclamation-triangle",
-
         accept: () => {
           control.setValue(newStatus);
         },
-
         reject: () => {
           control.setValue(currentStatus, { emitEvent: false });
         },
