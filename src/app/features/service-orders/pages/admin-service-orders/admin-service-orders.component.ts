@@ -111,6 +111,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   public ServiceOrderStatus = ServiceOrderStatus;
   public TypeOfOs = TypeOfOs;
   private blockUpdate = new Set<number>();
+  private formListenersDestroy$ = new Subject<void>();
 
   technicians: ViewTechnicianDto[] = [];
   technicianOptions: { label: string; value: string | null }[] = [];
@@ -247,6 +248,9 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.formListenersDestroy$.next();
+    this.formListenersDestroy$.complete();
+
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -556,7 +560,11 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
         if (!control) return;
 
         control.valueChanges
-          .pipe(debounceTime(5000), takeUntil(this.destroy$))
+          .pipe(
+            debounceTime(5000),
+            takeUntil(this.formListenersDestroy$),
+            takeUntil(this.destroy$)
+          )
           .subscribe(() => {
             if (this.blockUpdate.has(index)) {
               this.blockUpdate.delete(index);
@@ -643,18 +651,20 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       });
   }
 
-  private populateOrdersArray() {
-    setTimeout(() => {
-      const serviceOrderGroups = this.dataSource.map((order) =>
-        this.createServiceOrderGroup(order)
-      );
-      const newOrdersArray = this.fb.array(serviceOrderGroups);
-      this.osGroup.setControl("orders", newOrdersArray);
+  private populateOrdersArray(): void {
+    this.formListenersDestroy$.next();
 
-      this.isLoading = false;
-      this.cdr.markForCheck();
-      this.setupFormListeners();
-    }, 0);
+    const ordersArray = this.osGroup.get("orders") as FormArray;
+    ordersArray.clear();
+
+    this.dataSource.forEach((order) => {
+      ordersArray.push(this.createServiceOrderGroup(order));
+    });
+
+    this.isLoading = false;
+    this.cdr.markForCheck();
+
+    this.setupFormListeners();
   }
 
   ngAfterViewChecked(): void {
