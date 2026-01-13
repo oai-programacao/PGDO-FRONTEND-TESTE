@@ -329,7 +329,7 @@
                   ></p-tag>
 
                   <div
-                    *ngIf="os.typeOfOs === 'INSTALLATION'"
+                    *ngIf="os.typeOfOs === 'INSTALLATION' && !os.responsibleSeller"
                     class="installation-alert"
                     pTooltip="Após a Ordem de Serviço ficar com o status EXECUTADA, o carnê financeiro referente a esta venda será lançado automaticamente.
                     Essa OS não pode ser excluída, apenas reagendada pois de fato precisa ser CONCLUIDA!"

@@ -94,10 +94,12 @@ export class ServiceOrderService {
       );
     }
 
-    return this.http.get<CustomPageResponse<ViewServiceOrderDto>>(this.apiUrl, {
+    return this.http.get<CustomPageResponse<ViewServiceOrderDto>>(`${this.apiUrl}/withstore`, {
       params,
     });
   }
+
+
 
   findById(id: string): Observable<ViewServiceOrderDto> {
     return this.http.get<ViewServiceOrderDto>(`${this.apiUrl}/${id}`);

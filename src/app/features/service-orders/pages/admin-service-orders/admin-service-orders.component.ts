@@ -471,7 +471,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
         severity: "warn",
         summary: "Ação não permitida",
         detail:
-          "Para OS de venda da loja, não é possível colocaro o status EXECUTADA manualmente, é definido automaticamente pelo sistema pelo fim do horário de EM PRODUÇÃO.",
+          "Para OS de venda da loja, não é possível colocar o status EXECUTADA manualmente, é definido automaticamente pelo sistema pelo fim do horário de EM PRODUÇÃO.",
       });
 
       // reverte visualmente
