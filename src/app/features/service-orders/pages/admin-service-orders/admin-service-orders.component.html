@@ -633,6 +633,7 @@
   [style]="{ width: '34rem' }"
   [closable]="false"
   [focusOnShow]="false"
+  [draggable]="false"
 >
   <form [formGroup]="shopOsForm" class="p-fluid">
     <!-- Data + Período -->
@@ -680,6 +681,8 @@
       <div>
         <label class="text-sm font-medium mb-1 block"> ▶️ Início </label>
         <p-datepicker
+          dateFormat="HH:mm"
+          hourFormat="24"
           appendTo="body"
           timeOnly
           hourFormat="24"
@@ -691,6 +694,8 @@
       <div>
         <label class="text-sm font-medium mb-1 block"> ⏹ Fim </label>
         <p-datepicker
+          dateFormat="HH:mm"
+          hourFormat="24"
           appendTo="body"
           timeOnly
           hourFormat="24"
