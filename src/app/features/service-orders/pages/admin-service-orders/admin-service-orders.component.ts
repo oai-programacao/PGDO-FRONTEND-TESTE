@@ -830,11 +830,12 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       Array.isArray(statuses) &&
       statuses.includes(ServiceOrderStatus.IN_PRODUCTION);
 
-    if (start && isInProduction) {
+    if (start && !isInProduction) {
       endControl?.enable();
     } else {
       endControl?.disable();
       endControl?.reset();
     }
   }
+
 }
