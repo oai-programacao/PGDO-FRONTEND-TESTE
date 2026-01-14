@@ -776,9 +776,11 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   private updateEndOfOsState(): void {
     const start = this.shopOsForm.get("startOfOs")!.value;
     const status = this.selectedShopOs?.status;
-
+    
     this.canEditEndOfOs =
-      !!start && status === ServiceOrderStatus.IN_PRODUCTION;
+      !!start &&
+      (status === ServiceOrderStatus.IN_PRODUCTION ||
+        status === ServiceOrderStatus.EXECUTED);
   }
 
   confirmShopOs(): void {
