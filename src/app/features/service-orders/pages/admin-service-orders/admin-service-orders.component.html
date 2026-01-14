@@ -241,13 +241,11 @@
         #dt
         [rowTrackBy]="trackById"
         dataKey="id"
-        [first]="first"
         [value]="dataSource"
         [loading]="isLoading"
         styleClass="text-sm"
         [paginator]="true"
         [rows]="rows"
-        [alwaysShowPaginator]="true"
         [totalRecords]="totalRecords"
         (onPage)="onTableLazyLoad($event)"
         [lazy]="true"
@@ -276,72 +274,19 @@
         <ng-template #body let-os let-i="rowIndex">
           <tr [formGroupName]="i">
             <td>{{ os.contractNumber }}</td>
-            <td class="client-info-cell">
-              <div class="client-card">
-                <div class="client-name">
-                  <i class="pi pi-user"></i>
-                  <span>{{ os.clientName }}</span>
-                </div>
-
-                <div class="client-detail">
-                  <i class="pi pi-map-marker"></i>
-                  <span>{{ os.address }}</span>
-                </div>
-
-                <div class="client-info-grid">
-                  <div class="client-detail-item">
-                    <i class="pi pi-tag"></i>
-                    <span class="detail-label">Tipo:</span>
-                    <span class="detail-value">{{
-                      getClientTypeLabel(os.clientType)
-                    }}</span>
-                  </div>
-
-                  <div class="client-detail-item">
-                    <i class="pi pi-building"></i>
-                    <span class="detail-label">Cidade:</span>
-                    <span class="detail-value">{{
-                      getCitiesLabel(os.city)
-                    }}</span>
-                  </div>
-
-                  <div class="client-detail-item">
-                    <i class="pi pi-phone"></i>
-                    <span class="detail-label">Tel:</span>
-                    <span class="detail-value">{{ os.phone1 | phones }}</span>
-                  </div>
-
-                  <div class="client-detail-item" *ngIf="os.responsibleSeller">
-                    <i class="pi pi-briefcase"></i>
-                    <span class="detail-label">Vendedor:</span>
-                    <span class="detail-value">{{ os.responsibleSeller }}</span>
-                  </div>
-                </div>
-
-                <div
-                  class="client-tags"
-                  *ngIf="showExtraTag(os) || os.typeOfOs === 'INSTALLATION'"
-                >
-                  <p-tag
-                    *ngIf="showExtraTag(os)"
-                    [value]="getExtraTagLabel(os)"
-                    severity="info"
-                    [rounded]="true"
-                    class="custom-tag"
-                  ></p-tag>
-
-                  <div
-                    *ngIf="
-                      os.typeOfOs === 'INSTALLATION' && os.responsibleSeller
-                    "
-                    class="installation-alert"
-                    pTooltip="Após a Ordem de Serviço ficar com o status EXECUTADA, o carnê financeiro referente a esta venda será lançado automaticamente.
-                    Essa OS não pode ser excluída, apenas reagendada pois de fato precisa ser CONCLUIDA!"
-                    tooltipPosition="top"
-                  >
-                    <i class="pi pi-info-circle"></i>
-                  </div>
-                </div>
+            <td>
+              <div class="font-medium truncate w-fit">{{ os.clientName }}</div>
+              <div class="text-s text-slate-500 truncate w-fit">
+                {{ os.address }}
+              </div>
+              <div class="text-s text-slate-500 truncate w-fit">
+                Tipo - {{ getClientTypeLabel(os.clientType) }}
+              </div>
+              <div class="text-s text-slate-500 truncate w-fit">
+                Cidade - {{ getCitiesLabel(os.city) }}
+              </div>
+              <div class="text-s text-slate-500 truncate w-fit">
+                Telefone - {{ os.phone1 | phones }}
               </div>
             </td>
             <td>{{ getTypeOfOsLabel(os.typeOfOs) }}</td>
@@ -407,29 +352,23 @@
             </td>
             <td>
               <p-select
-                [options]="getStatusOptions(os)"
+                [options]="statusOptions"
                 formControlName="status"
                 optionLabel="label"
-                [disabled]="
-                  os.typeOfOs?.includes(TypeOfOs.INSTALLATION) &&
-                  os.responsibleSeller &&
-                  os.status?.includes(ServiceOrderStatus.EXECUTED)
-                "
                 optionValue="value"
                 appendTo="body"
-                (onChange)="onStatusChange($event.value,os,i)"
                 [styleClass]="
                   'min-w-full ' +
-                  (getOrderStatus(i) ===
+                  (orders.controls[i]?.get('status')?.value ===
                   ServiceOrderStatus.EXECUTED
                     ? 'status-executado'
-                    : orders.controls[i]!.get('status')?.value ===
+                    : orders.controls[i]?.get('status')?.value ===
                       ServiceOrderStatus.IN_PRODUCTION
                     ? 'status-andamento'
-                    : orders.controls[i]!.get('status')?.value ===
+                    : orders.controls[i]?.get('status')?.value ===
                       ServiceOrderStatus.CANCELED
                     ? 'status-cancelado'
-                    : orders.controls[i]!.get('status')?.value ===
+                    : orders.controls[i]?.get('status')?.value ===
                       ServiceOrderStatus.RESCHEDULED
                     ? 'status-reagendado'
                     : '')

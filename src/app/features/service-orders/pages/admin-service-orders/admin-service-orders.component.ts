@@ -110,7 +110,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   private pendingFirstValue: number | null = null;
 
   public ServiceOrderStatus = ServiceOrderStatus;
-  public TypeOfOs = TypeOfOs;
 
   technicians: ViewTechnicianDto[] = [];
   technicianOptions: { label: string; value: string | null }[] = [];
@@ -573,22 +572,17 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   }
 
   private populateOrdersArray() {
-    // Cria os FormGroups para cada OS
-    const serviceOrderGroups = this.dataSource.map((order) =>
-      this.createServiceOrderGroup(order)
-    );
+    setTimeout(() => {
+      const serviceOrderGroups = this.dataSource.map((order) =>
+        this.createServiceOrderGroup(order)
+      );
+      const newOrdersArray = this.fb.array(serviceOrderGroups);
+      this.osGroup.setControl("orders", newOrdersArray);
 
-    // Cria FormArray e seta no FormGroup principal
-    const newOrdersArray = this.fb.array(serviceOrderGroups);
-    this.osGroup.setControl("orders", newOrdersArray);
-
-    // Espera o Angular renderizar a tabela antes de setar dt.first
-    this.cdr.detectChanges();
-
-    // Configura os listeners depois que os controles existem
-    this.setupFormListeners();
-
-    this.isLoading = false;
+      this.isLoading = false;
+      this.cdr.markForCheck();
+      this.setupFormListeners();
+    }, 0);
   }
 
   ngAfterViewChecked(): void {
@@ -741,77 +735,4 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       });
     });
   }
-
-  showExtraTag(os: any): boolean {
-    return (
-      !!os?.responsibleSeller &&
-      (os.typeOfOs === "INSTALLATION" || os.typeOfOs === "CHANGE_OF_ADDRESS")
-    );
-  }
-
-  getExtraTagLabel(os: any): string {
-    if (os.typeOfOs === "INSTALLATION") {
-      return "LOJA | VENDA 💵";
-    }
-
-    if (os.typeOfOs === "CHANGE_OF_ADDRESS") {
-      return "LOJA | MUDANÇA DE ENDEREÇO 🔄";
-    }
-
-    return "";
-  }
-
-  getStatusOptions(
-    os: ViewServiceOrderDto
-  ): { label: string; value: ServiceOrderStatus }[] {
-    return Object.entries(ServiceOrderStatusLabels).map(([key, label]) => ({
-      label,
-      value: ServiceOrderStatus[key as keyof typeof ServiceOrderStatus],
-    }));
-  }
-
-  onStatusChange(
-    newStatus: ServiceOrderStatus,
-    os: ViewServiceOrderDto,
-    index: number
-  ) {
-    const control = this.orders.at(index).get("status");
-    if (!control) return;
-
-    const previousStatus = os.status?.[0];
-
-    const isVenda =
-      os.typeOfOs?.includes(TypeOfOs.INSTALLATION) && !!os.responsibleSeller;
-
-    if (isVenda && newStatus === ServiceOrderStatus.IN_PRODUCTION) {
-      control.setValue(previousStatus, { emitEvent: false });
-
-      this.confirmationService.confirm({
-        header: "Confirmação",
-        message: `
-Deseja mesmo iniciar essa Ordem de Serviço de venda?<br><br>
-O cliente será notificado via WhatsApp que o técnico está a caminho.<br><br>
-<b>Não será possível reverter.</b>
-      `,
-        icon: "pi pi-exclamation-triangle",
-
-        accept: () => {
-          // ✅ agora sim altera
-          control.setValue(newStatus);
-          // 👆 dispara valueChanges → updateServiceOrder
-        },
-
-        reject: () => {
-          // nada a fazer, já voltou
-        },
-      });
-
-      return;
-    }
-  }
-
-  getOrderStatus(i: number): ServiceOrderStatus | null {
-  return this.orders.at(i)?.get('status')?.value ?? null;
-}
-
 }
