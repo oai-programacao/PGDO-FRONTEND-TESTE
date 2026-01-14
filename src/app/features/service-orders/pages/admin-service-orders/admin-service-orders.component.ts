@@ -836,8 +836,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     const status = this.selectedShopOs?.status;
 
     // Só permite editar Fim se start preenchido e status IN_PRODUCTION
-    this.isEndOfOsReadonly = !(
-      start && status === ServiceOrderStatus.IN_PRODUCTION
-    );
+    this.isEndOfOsReadonly = !(start && status === ServiceOrderStatus.IN_PRODUCTION);
   }
 }
