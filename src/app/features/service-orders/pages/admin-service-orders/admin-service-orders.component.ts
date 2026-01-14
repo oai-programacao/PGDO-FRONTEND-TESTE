@@ -755,19 +755,29 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       period: [os.period, Validators.required],
       technician: [os.technician?.id, Validators.required],
       startOfOs: [os.startOfOs, Validators.required],
-      endOfOs: [os.endOfOs || null], // só setamos valor, não desabilitamos
+      endOfOs: [os.endOfOs || null],
       status: [
         os.status || ServiceOrderStatus.IN_PRODUCTION,
         Validators.required,
       ],
     });
 
-    // Reage a alterações do início
+    // Atualiza estado do campo endOfOs ao abrir
+    this.updateEndOfOsState();
+
+    // Reage a alterações do início da OS (startOfOs)
     this.shopOsForm.get("startOfOs")?.valueChanges.subscribe(() => {
-      this.controlEndOfOsField();
+      this.updateEndOfOsState();
     });
 
     this.isShopOsDialogVisible = true;
+  }
+
+  private updateEndOfOsState(): void {
+    const status = this.selectedShopOs?.status;
+
+    // Só permite edição se status IN_PRODUCTION
+    this.isEndOfOsReadonly = status !== ServiceOrderStatus.IN_PRODUCTION;
   }
 
   confirmShopOs(): void {
@@ -827,13 +837,5 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     }
 
     return value;
-  }
-
-  private controlEndOfOsField(): void {
-    const start = this.shopOsForm.get("startOfOs")?.value;
-    const status = this.selectedShopOs?.status;
-
-    // Só permite editar Fim se start preenchido e status IN_PRODUCTION
-    this.isEndOfOsReadonly = !(start && status === ServiceOrderStatus.IN_PRODUCTION);
   }
 }
