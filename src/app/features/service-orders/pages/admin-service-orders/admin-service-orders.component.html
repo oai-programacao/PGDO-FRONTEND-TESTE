@@ -626,55 +626,93 @@
 <p-confirmdialog />
 
 <p-dialog
-  header="Iniciar OS de Venda"
+  header="🚀 Iniciar OS de Venda"
   *ngIf="shopOsForm"
   [(visible)]="isShopOsDialogVisible"
   [modal]="true"
-  [style]="{ width: '32rem' }"
+  [style]="{ width: '34rem' }"
+  [closable]="false"
 >
   <form [formGroup]="shopOsForm" class="p-fluid">
-    <div class="mb-3">
-      <label>Data de Agendamento</label>
-      <p-datepicker formControlName="scheduleDate" appendTo="body" />
+    <!-- Data + Período -->
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div>
+        <label class="text-sm font-medium mb-1 block">
+          📅 Data de Agendamento
+        </label>
+        <p-datepicker formControlName="scheduleDate" appendTo="body" showIcon />
+      </div>
+
+      <div>
+        <label class="text-sm font-medium mb-1 block"> ⏰ Período </label>
+        <p-select [options]="periodOptions" formControlName="period" />
+      </div>
     </div>
 
-    <div class="mb-3">
-      <label>Período</label>
-      <p-select [options]="periodOptions" formControlName="period" />
-    </div>
-
-    <div class="mb-3">
-      <label>Técnico</label>
+    <!-- Técnico -->
+    <div class="mb-4">
+      <label class="text-sm font-medium mb-1 block">
+        👷 Técnico Responsável
+      </label>
       <p-select
         [options]="technicianOptions"
         optionLabel="label"
         optionValue="value"
         formControlName="technician"
+        showClear
       />
     </div>
 
-    <div class="mb-3 grid grid-cols-2 gap-3">
+    <!-- Horários -->
+    <div class="grid grid-cols-2 gap-3 mb-2">
       <div>
-        <label>Início</label>
-        <p-datepicker timeOnly hourFormat="24" formControlName="startOfOs" />
+        <label class="text-sm font-medium mb-1 block"> ▶️ Início </label>
+        <p-datepicker
+          timeOnly
+          hourFormat="24"
+          formControlName="startOfOs"
+          showIcon
+        />
       </div>
+
       <div>
-        <label>Fim</label>
-        <p-datepicker timeOnly hourFormat="24" formControlName="endOfOs" />
+        <label class="text-sm font-medium mb-1 block"> ⏹ Fim </label>
+        <p-datepicker
+          timeOnly
+          hourFormat="24"
+          formControlName="endOfOs"
+          showIcon
+        />
       </div>
     </div>
 
-    <div class="flex justify-end gap-2 mt-4">
+    <!-- Alerta informativo -->
+    <div
+      class="mt-3 p-3 rounded-md bg-yellow-50 text-yellow-800 text-sm flex gap-2 items-start"
+    >
+      <i class="pi pi-info-circle mt-0.5"></i>
+      <span>
+        Esta OS é do tipo <strong>Venda</strong>. As alterações serão aplicadas
+        somente após a confirmação.
+      </span>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-2 mt-5">
       <button
         pButton
+        type="button"
         label="Cancelar"
+        icon="pi pi-times"
         class="p-button-text"
         (click)="isShopOsDialogVisible = false"
       ></button>
 
       <button
         pButton
+        type="button"
         label="Confirmar"
+        icon="pi pi-check"
         class="p-button-success"
         (click)="confirmShopOs()"
         [disabled]="shopOsForm.invalid"
