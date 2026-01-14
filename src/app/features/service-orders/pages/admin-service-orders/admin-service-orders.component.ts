@@ -262,6 +262,17 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     return this.osGroup.get("orders") as FormArray;
   }
 
+  get ordersControls() {
+    return this.orders.controls;
+  }
+
+  get ordersDataSource() {
+    return this.ordersControls.map((ctrl, idx) => ({
+      ...this.dataSource[idx],
+      formGroup: ctrl,
+    }));
+  }
+
   trackById(index: number, item: ViewServiceOrderDto): string {
     return item.id;
   }
@@ -639,18 +650,18 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       });
   }
 
-  private populateOrdersArray() {
-    setTimeout(() => {
-      const serviceOrderGroups = this.dataSource.map((order) =>
-        this.createServiceOrderGroup(order)
-      );
-      const newOrdersArray = this.fb.array(serviceOrderGroups);
-      this.osGroup.setControl("orders", newOrdersArray);
+  populateOrdersArray(): void {
+    const formGroups = this.dataSource.map((os) =>
+      this.createServiceOrderGroup(os)
+    );
 
-      this.isLoading = false;
-      this.cdr.markForCheck();
-      this.setupFormListeners();
-    }, 0);
+    this.osGroup.setControl("orders", this.fb.array(formGroups));
+
+    setTimeout(() => {
+      if (this.dt) {
+        this.dt.first = this.first;
+      }
+    });
   }
 
   private createServiceOrderGroup(
@@ -854,9 +865,5 @@ O cliente será notificado via WhatsApp que o técnico está a caminho.<br><br>
 
       return;
     }
-  }
-
-  get ordersFormArray(): FormArray {
-    return this.osGroup.get("orders") as FormArray;
   }
 }

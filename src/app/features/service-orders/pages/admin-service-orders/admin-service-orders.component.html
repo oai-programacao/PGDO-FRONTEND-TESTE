@@ -238,7 +238,6 @@
   <div *ngIf="!isLoading; else loadingTemplate">
     <form [formGroup]="osGroup" class="p-fluid">
       <p-table
-      *ngIf="ordersFormArray"
         #dt
         [rowTrackBy]="trackById"
         dataKey="id"
