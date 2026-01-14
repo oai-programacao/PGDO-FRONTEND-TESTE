@@ -160,7 +160,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   isEditingTechDialogVisible = false;
   isPostingObeservationTechDialogVisible = false;
   isDeleteTechDialogVisible = false;
-  isEndOfOsReadonly: boolean = false;
+  editEndOs: boolean = false;
 
   constructor() {
     this.serviceOrderTypeOptions = this.mapLabelsToOptions(TypeOfOsLabels);
@@ -762,8 +762,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       ],
     });
 
-    this.updateEndOfOsState();
-
     this.shopOsForm.get("startOfOs")?.valueChanges.subscribe(() => {
       this.updateEndOfOsState();
     });
@@ -772,10 +770,14 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   }
 
   private updateEndOfOsState(): void {
-    const status = this.selectedShopOs?.status;
+  const status = this.selectedShopOs?.status;
+  const start = this.shopOsForm.get("startOfOs")?.value;
 
-    this.isEndOfOsReadonly = status !== ServiceOrderStatus.IN_PRODUCTION;
-  }
+  // true se tiver startOfOs e status IN_PRODUCTION
+  this.editEndOs = !!start && status === ServiceOrderStatus.IN_PRODUCTION;
+
+}
+
 
   confirmShopOs(): void {
     if (this.shopOsForm.invalid) return;
@@ -836,10 +838,4 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     return value;
   }
 
-  preventEndOfOsEdit(event: any) {
-    if (this.isEndOfOsReadonly) {
-      event.preventDefault();
-      (event.target as HTMLInputElement).blur(); 
-    }
-  }
 }
