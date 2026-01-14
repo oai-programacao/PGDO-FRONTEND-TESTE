@@ -424,8 +424,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    
-
     const dto: UpdateServiceOrderDto = {
       scheduleDate: formGroup.get("scheduleDate")?.value || null,
       period: formGroup.get("period")?.value || null,
@@ -737,4 +735,13 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       });
     });
   }
+
+  isOsShop(os: ViewServiceOrderDto): boolean {
+    return (
+      Array.isArray(os.typeOfOs) &&
+      os.typeOfOs.includes(TypeOfOs.INSTALLATION) &&
+      !!os.responsibleSeller
+    );
+  }
+  
 }

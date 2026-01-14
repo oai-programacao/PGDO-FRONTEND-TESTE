@@ -286,11 +286,10 @@
 
                   <!-- TAG DE VENDA -->
                   <p-tag
-                    *ngIf="
-                      os.typeOfOs === 'INSTALLATION' && os.responsibleSeller
-                    "
-                    value="🏪 LOJA · VENDA"
+                    *ngIf="isOsShop(os)"
+                    value="LOJA • VENDA"
                     severity="success"
+                    icon="pi pi-shopping-cart"
                     rounded
                   ></p-tag>
                 </div>
@@ -352,6 +351,7 @@
                 styleClass="min-w-[7rem]"
                 fluid
                 [disabledDays]="[0]"
+                [disabled]="isOsShop(os)"
                 id="scheduleDate-{{ i }}"
               />
             </td>
@@ -361,6 +361,7 @@
                 formControlName="period"
                 appendTo="body"
                 styleClass="min-w-full max-w-[100%]"
+                [disabled]="isOsShop(os)"
               />
             </td>
             <td>
@@ -373,6 +374,7 @@
                 styleClass="min-w-[170px] max-w-[170px]"
                 id="technician"
                 showClear
+                [disabled]="isOsShop(os)"
               />
             </td>
             <td>
@@ -385,6 +387,7 @@
                 hourFormat="24"
                 appendTo="body"
                 showClear
+                [disabled]="isOsShop(os)"
               />
             </td>
             <td>
@@ -397,6 +400,7 @@
                 hourFormat="24"
                 appendTo="body"
                 showClear
+                [disabled]="isOsShop(os)"
               />
             </td>
             <td>
@@ -408,6 +412,7 @@
                 formControlName="status"
                 optionLabel="label"
                 optionValue="value"
+                [disabled]="isOsShop(os)"
                 appendTo="body"
                 [styleClass]="
                   'min-w-full ' +
