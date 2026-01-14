@@ -855,4 +855,8 @@ O cliente será notificado via WhatsApp que o técnico está a caminho.<br><br>
       return;
     }
   }
+
+  get ordersFormArray(): FormArray {
+    return this.osGroup.get("orders") as FormArray;
+  }
 }
