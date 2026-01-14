@@ -427,6 +427,7 @@
             </td>
 
             <td>
+              <!-- STATUS EDITÁVEL (NÃO VENDA) -->
               <p-select
                 *ngIf="
                   !(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller)
@@ -436,31 +437,20 @@
                 optionLabel="label"
                 optionValue="value"
                 appendTo="body"
-                [styleClass]="
-                  'min-w-full ' +
-                  (orders.controls[i]?.get('status')?.value ===
-                  ServiceOrderStatus.EXECUTED
-                    ? 'status-executado'
-                    : orders.controls[i]?.get('status')?.value ===
-                      ServiceOrderStatus.IN_PRODUCTION
-                    ? 'status-andamento'
-                    : orders.controls[i]?.get('status')?.value ===
-                      ServiceOrderStatus.CANCELED
-                    ? 'status-cancelado'
-                    : orders.controls[i]?.get('status')?.value ===
-                      ServiceOrderStatus.RESCHEDULED
-                    ? 'status-reagendado'
-                    : '')
-                "
+                class="min-w-full"
               >
                 <ng-template let-option pTemplate="item">
                   <div
                     class="status-option"
                     [ngClass]="{
-                      'status-executado': option.label === 'Executado',
-                      'status-andamento': option.label === 'Em Produção',
-                      'status-cancelado': option.label === 'Cancelado',
-                      'status-reagendado': option.label === 'Reagendado',
+                      'status-executado':
+                        option.value === ServiceOrderStatus.EXECUTED,
+                      'status-andamento':
+                        option.value === ServiceOrderStatus.IN_PRODUCTION,
+                      'status-cancelado':
+                        option.value === ServiceOrderStatus.CANCELED,
+                      'status-reagendado':
+                        option.value === ServiceOrderStatus.RESCHEDULED
                     }"
                   >
                     {{ option.label }}
@@ -468,18 +458,40 @@
                 </ng-template>
               </p-select>
 
-              <button
+              <div
                 *ngIf="os.typeOfOs === 'INSTALLATION' && os.responsibleSeller"
-                pButton
-                size="large"
-                severity="contrast"
-                icon="pi pi-angle-right"
-                [rounded]="true"
-                pTooltip="Iniciar OS de Venda [EM PRODUÇÃO]"
-                [raised]="true"
-                (click)="openShopOsDialog(os)"
-              ></button>
+                class="flex items-center justify-between gap-4"
+              >
+                <span
+                  class="px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap"
+                  [ngClass]="{
+                    'status-executado':
+                      os.status === ServiceOrderStatus.EXECUTED,
+                    'status-andamento':
+                      os.status === ServiceOrderStatus.IN_PRODUCTION,
+                    'status-cancelado':
+                      os.status === ServiceOrderStatus.CANCELED,
+                    'status-reagendado':
+                      os.status === ServiceOrderStatus.RESCHEDULED
+                  }"
+                >
+                  {{ getStatusLabel(os.status) }}
+                </span>
+
+                <!-- BOTÃO -->
+                <button
+                  pButton
+                  size="large"
+                  severity="contrast"
+                  icon="pi pi-angle-right"
+                  [rounded]="true"
+                  pTooltip="Iniciar OS de Venda"
+                  [raised]="true"
+                  (click)="openShopOsDialog(os)"
+                ></button>
+              </div>
             </td>
+
             <td>
               <div class="flex flex-col items-center justify-center gap-2">
                 <div>
@@ -626,7 +638,7 @@
 <p-confirmdialog />
 
 <p-dialog
-  header="🚀 Iniciar OS de Venda"
+  header="🚀 Iniciar OS de Venda [EM PRODUÇÃO]"
   *ngIf="shopOsForm"
   [(visible)]="isShopOsDialogVisible"
   [modal]="true"
