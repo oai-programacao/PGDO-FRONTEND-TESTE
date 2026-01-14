@@ -689,7 +689,6 @@
     </div>
 
     <!-- Horários -->
-    <!-- Horários -->
     <div class="grid grid-cols-2 gap-3 mb-2">
       <!-- Início -->
       <div>
@@ -710,7 +709,7 @@
         <label class="text-sm font-medium mb-1 block"> ⏹ Fim </label>
         <input
           type="time"
-          class="p-inputtext w-full"
+          class="p-inputtext w-full readonly-field"
           [readonly]="!canEditEndOfOs"
           [value]="shopOsForm.get('endOfOs')!.value"
           (input)="

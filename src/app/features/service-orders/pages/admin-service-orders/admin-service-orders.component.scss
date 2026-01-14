@@ -104,3 +104,10 @@ nav {
   gap: 6px;
   cursor: help;
 }
+
+
+.readonly-field[readonly] {
+  background-color: #f5f5f5; /* cinza claro */
+  color: #6b6b6b;           /* texto mais escuro que o fundo */
+  cursor: not-allowed;
+}
