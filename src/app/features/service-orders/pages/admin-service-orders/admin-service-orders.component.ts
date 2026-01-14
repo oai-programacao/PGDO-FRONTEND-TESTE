@@ -107,7 +107,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly confirmationService = inject(ConfirmationService);
   private destroy$ = new Subject<void>();
-  private pendingFirstValue: number | null = null;
   public ServiceOrderStatus = ServiceOrderStatus;
   public TypeOfOs = TypeOfOs;
   private blockUpdate = new Set<number>();
@@ -365,7 +364,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
 
     const page = Math.floor(this.first / this.rows);
     this.updateUrlQueryParams();
-    this.pendingFirstValue = this.first;
 
     this.serviceOrderService.getExpiredCliente(page, this.rows).subscribe({
       next: (dataPage) => {
@@ -395,8 +393,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     }
 
     const page = Math.floor(this.first / this.rows);
-
-    this.pendingFirstValue = this.first;
 
     this.serviceOrderService.findByOsActive(page, this.rows).subscribe({
       next: (dataPage) => {
@@ -656,13 +652,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
       this.setupFormListeners();
     }, 0);
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.pendingFirstValue !== null && this.dt) {
-      this.dt.first = this.pendingFirstValue;
-      this.pendingFirstValue = null;
-    }
   }
 
   private createServiceOrderGroup(
