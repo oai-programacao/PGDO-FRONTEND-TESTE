@@ -274,6 +274,7 @@
         <ng-template #body let-os let-i="rowIndex">
           <tr [formGroupName]="i">
             <td>{{ os.contractNumber }}</td>
+            
             <td>
               <div class="os-card">
                 <!-- HEADER -->
@@ -296,25 +297,31 @@
 
                 <!-- ENDEREÇO -->
                 <div class="os-card-row address">
-                  📍 <span>{{ os.address }}</span>
+                  <strong>Endereço:</strong> {{ os.address }}
                 </div>
 
                 <!-- GRID DE INFO -->
                 <div class="os-card-grid">
                   <div class="info-item">
-                    🏷️ <span>{{ getClientTypeLabel(os.clientType) }}</span>
+                    <span class="label">🏷️ Tipo do Cliente:</span>
+                    <span class="value">{{
+                      getClientTypeLabel(os.clientType)
+                    }}</span>
                   </div>
 
                   <div class="info-item">
-                    🏙️ <span>{{ getCitiesLabel(os.city) }}</span>
+                    <span class="label">🏙️ Cidade:</span>
+                    <span class="value">{{ getCitiesLabel(os.city) }}</span>
                   </div>
 
                   <div class="info-item">
-                    📞 <span>{{ os.phone1 | phones }}</span>
+                    <span class="label">📞 Celular:</span>
+                    <span class="value">{{ os.phone1 | phones }}</span>
                   </div>
 
                   <div class="info-item" *ngIf="os.responsibleSeller">
-                    🧑‍💼 <span>{{ os.responsibleSeller }}</span>
+                    <span class="label">🧑‍💼 Vendedor:</span>
+                    <span class="value">{{ os.responsibleSeller }}</span>
                   </div>
                 </div>
 

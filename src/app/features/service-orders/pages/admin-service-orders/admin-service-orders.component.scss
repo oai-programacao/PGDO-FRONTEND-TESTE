@@ -23,7 +23,6 @@ nav {
   background-color: rgb(252, 248, 48, 0.5);
 }
 
-
 .os-card {
   background: linear-gradient(135deg, #ffffff, #f8fafc);
   border-radius: 14px;
@@ -32,7 +31,7 @@ nav {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .os-card:hover {
@@ -73,14 +72,21 @@ nav {
 .os-card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 12px;
-  font-size: 0.78rem;
+  gap: 8px 12px;
 }
 
 .info-item {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  font-size: 0.78rem;
+}
+
+.info-item .label {
+  font-weight: 600;
+  color: #64748b;
+}
+
+.info-item .value {
   color: #334155;
 }
 
