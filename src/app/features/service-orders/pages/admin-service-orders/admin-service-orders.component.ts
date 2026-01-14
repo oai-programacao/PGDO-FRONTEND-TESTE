@@ -753,7 +753,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       period: [os.period, Validators.required],
       technician: [os.technician?.id, Validators.required],
       startOfOs: [os.startOfOs, Validators.required],
-      endOfOs: [os.endOfOs, Validators.required],
+      endOfOs: [null],
       status: [ServiceOrderStatus.IN_PRODUCTION, Validators.required],
     });
 
