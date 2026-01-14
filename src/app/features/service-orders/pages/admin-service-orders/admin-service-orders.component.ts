@@ -830,9 +830,5 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     this.isEndOfOsReadonly = !(
       start && status === ServiceOrderStatus.IN_PRODUCTION
     );
-
-    // Se quiser garantir que o valor continue correto no form
-    const endControl = this.shopOsForm.get("endOfOs");
-    endControl?.setValue(endControl?.value, { emitEvent: false });
   }
 }
