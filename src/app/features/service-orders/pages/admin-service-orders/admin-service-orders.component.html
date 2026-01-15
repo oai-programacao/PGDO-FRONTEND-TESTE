@@ -658,9 +658,9 @@
           formControlName="scheduleDate"
           appendTo="body"
           showIcon
-          appendTo="body"
           readonlyInput
-          disabled  
+          dateFormat="dd/mm/yy"
+          dataType="string"
         />
       </div>
 
@@ -733,6 +733,7 @@
     <div class="flex justify-end gap-2 mt-5">
       <button
         pButton
+        severity="danger"
         type="button"
         label="Cancelar"
         icon="pi pi-times"
