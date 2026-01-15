@@ -776,7 +776,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   private updateEndOfOsState(): void {
     const start = this.shopOsForm.get("startOfOs")!.value;
     const status = this.selectedShopOs?.status;
-    
+
     this.canEditEndOfOs =
       !!start &&
       (status === ServiceOrderStatus.IN_PRODUCTION ||
@@ -813,6 +813,30 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
 
         this.isShopOsDialogVisible = false;
         this.loadServiceOrders();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: "error",
+          summary: "Erro",
+          detail: "Falha ao atualizar a Ordem de Serviço.",
+        });
+      },
+    });
+  }
+
+  updateScheduleDateShopOs(): void {
+
+    const dto: UpdateServiceOrderDto = {
+      status: ServiceOrderStatus.RESCHEDULED,
+    };
+
+    this.serviceOrderService.update(this.selectedShopOs.id, dto).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: "success",
+          summary: "REAGENDAR OS LOJA",
+          detail: "Os da loja reagendada com sucesso.",
+        });
       },
       error: () => {
         this.messageService.add({
