@@ -844,8 +844,8 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       next: () => {
         this.messageService.add({
           severity: "success",
-          summary: "REAGENDAR OS LOJA",
-          detail: "Os da loja reagendada com sucesso.",
+          summary: "Reagendar Os Loja",
+          detail: "A Os foi colocada com o status Reagendada com sucesso.",
         });
         this.isShopOsDialogVisible = false;
         this.loadServiceOrders();
