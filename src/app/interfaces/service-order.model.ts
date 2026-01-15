@@ -37,7 +37,7 @@ export interface ViewServiceOrderDto {
   district: string;
   address: string;
   clientType: ClientType;
-  typeOfOs: TypeOfOs[];
+  typeOfOs: TypeOfOs;
   scheduleDate?: string;
   period?: Period;
   technology?: Technology;

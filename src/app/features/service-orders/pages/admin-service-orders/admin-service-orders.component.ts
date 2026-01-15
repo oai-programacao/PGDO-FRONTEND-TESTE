@@ -651,6 +651,16 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   getPeriodLabel = (period: Period) => PeriodLabels[period] || period;
 
   confirmDeleteServiceOrder(event: Event, os: ViewServiceOrderDto) {
+
+    if(os.responsibleSeller && (os.typeOfOs === TypeOfOs.INSTALLATION || os.typeOfOs === TypeOfOs.CHANGE_OF_ADDRESS)) {
+      this.messageService.add({
+          severity: "error",
+          summary: "Cancelado",
+          detail: "Não é possível excluir OS vinda da loja, apenas REAGENDAR.",
+        });
+      return;
+    }
+
     this.confirmationService.confirm({
       target: event.target as EventTarget,
       message: "Tem certeza que deseja excluir esta ordem de serviço?",
@@ -837,6 +847,8 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
           summary: "REAGENDAR OS LOJA",
           detail: "Os da loja reagendada com sucesso.",
         });
+        this.isShopOsDialogVisible = false;
+        this.loadServiceOrders();
       },
       error: () => {
         this.messageService.add({
