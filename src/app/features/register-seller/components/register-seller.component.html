@@ -1,0 +1,260 @@
+<div class="seller-register-page">
+  <p-toast></p-toast>
+  <div class="main-card">
+    <div class="page-header">
+      <div class="header-left">
+        <button
+          pButton
+          icon="pi pi-arrow-left"
+          class="p-button-text p-button-secondary back-btn"
+          (click)="goBack()"
+        ></button>
+        <div>
+          <h1>Cadastrar Vendedor</h1>
+          <p>Preencha os dados para adicionar um novo vendedor à equipe</p>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-layout">
+        <!-- Card Foto de Perfil -->
+        <div class="card photo-card">
+          <h2 class="card-title"><i class="pi pi-image"></i> Foto de Perfil</h2>
+
+          <div
+            class="photo-upload-area"
+            (click)="fotoInput.click()"
+            [class.has-photo]="photoPreview"
+          >
+            <input
+              #fotoInput
+              type="file"
+              accept="image/*"
+              hidden
+              (change)="onPhotoSelected($event)"
+            />
+            <img
+              *ngIf="photoPreview"
+              [src]="photoPreview"
+              class="photo-preview"
+              alt="Preview"
+            />
+            <div *ngIf="!photoPreview" class="photo-placeholder">
+              <i class="pi pi-camera"></i>
+              <p>Clique para enviar foto</p>
+              <span>JPG, PNG até 5MB</span>
+            </div>
+            <div class="photo-overlay" *ngIf="photoPreview">
+              <i class="pi pi-pencil"></i>
+              <span>Alterar foto</span>
+            </div>
+          </div>
+
+          <button
+            *ngIf="photoPreview"
+            pButton
+            type="button"
+            label="Remover foto"
+            icon="pi pi-trash"
+            class="p-button-text p-button-danger remove-photo-btn"
+            (click)="removePhoto()"
+          ></button>
+        </div>
+
+        <!-- Card Dados Pessoais -->
+        <div class="card info-card">
+          <h2 class="card-title"><i class="pi pi-user"></i> Dados Pessoais</h2>
+
+          <div class="form-grid">
+            <div class="field full-width">
+              <label>Nome Completo <span class="required">*</span></label>
+              <input
+                pInputText
+                formControlName="name"
+                placeholder="Ex: Gabriel Santos"
+              />
+              <small
+                class="p-error"
+                *ngIf="f['name'].invalid && f['name'].touched"
+                >Nome é obrigatório.</small
+              >
+            </div>
+
+            <div class="field">
+              <label>CPF <span class="required">*</span></label>
+              <p-inputmask
+                formControlName="cpf"
+                mask="999.999.999-99"
+                placeholder="000.000.000-00"
+                styleClass="w-full"
+              />
+              <small
+                class="p-error"
+                *ngIf="f['cpf'].invalid && f['cpf'].touched"
+                >CPF é obrigatório.</small
+              >
+            </div>
+
+            <div class="field">
+              <label>Idade</label>
+              <p-inputnumber
+                formControlName="age"
+                placeholder="Ex: 25"
+                [min]="16"
+                [max]="80"
+                styleClass="w-full"
+              />
+            </div>
+
+            <div class="field">
+              <label>Telefone <span class="required">*</span></label>
+              <p-inputmask
+                formControlName="phone"
+                mask="(99) 99999-9999"
+                placeholder="(18) 99999-0000"
+                styleClass="w-full"
+              />
+              <small
+                class="p-error"
+                *ngIf="f['phone'].invalid && f['phone'].touched"
+                >Telefone é obrigatório.</small
+              >
+            </div>
+
+            <div class="field">
+              <label>Telefone 2</label>
+              <p-inputmask
+                formControlName="phone2"
+                mask="(99) 99999-9999"
+                placeholder="(18) 99999-0000"
+                styleClass="w-full"
+              />
+            </div>
+
+            <div class="field">
+              <label>Cidade <span class="required">*</span></label>
+              <input
+                pInputText
+                formControlName="city"
+                placeholder="Ex: Assis"
+              />
+              <small
+                class="p-error"
+                *ngIf="f['city'].invalid && f['city'].touched"
+                >Cidade é obrigatória.</small
+              >
+            </div>
+
+            <div class="field">
+              <label>Meta Mensal (vendas)</label>
+              <p-inputnumber
+                formControlName="goal"
+                placeholder="Ex: 30"
+                [min]="0"
+                styleClass="w-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Acesso PGDO -->
+        <div class="card access-card">
+          <h2 class="card-title">
+            <i class="pi pi-lock"></i> Dados de Acesso — PGDO
+          </h2>
+
+          <div class="form-grid">
+            <div class="field full-width">
+              <label>E-mail <span class="required">*</span></label>
+              <input
+                pInputText
+                formControlName="email"
+                placeholder="Ex: usuarionome@oai.com.br"
+                type="email"
+              />
+              <small
+                class="p-error"
+                *ngIf="f['email'].invalid && f['email'].touched"
+                >E-mail válido é obrigatório.</small
+              >
+            </div>
+
+            <div class="field full-width">
+              <label>Senha <span class="required">*</span></label>
+              <p-password
+                formControlName="password"
+                placeholder="Mínimo 6 caracteres"
+                [feedback]="true"
+                [toggleMask]="true"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+              />
+              <small
+                class="p-error"
+                *ngIf="f['password'].invalid && f['password'].touched"
+                >Senha mínima de 6 caracteres.</small
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Card RBX -->
+        <!-- Card RBX -->
+        <div class="card rbx-card">
+          <h2 class="card-title">
+            <i class="pi pi-globe"></i> Dados de Acesso — RBX
+            <span class="rbx-badge">Sistema Externo</span>
+          </h2>
+
+          <div class="form-grid">
+            <div class="field full-width">
+              <label>Usuário RBX <span class="required">*</span></label>
+              <input
+                pInputText
+                formControlName="userRbx"
+                placeholder="Ex: usuario.rbx"
+              />
+              <small class="hint">Formato: primeironomerbx.sobrenome</small>
+              <small
+                class="p-error"
+                *ngIf="f['userRbx'].invalid && f['userRbx'].touched"
+              >
+                Usuário RBX é obrigatório.
+              </small>
+            </div>
+
+            <div class="rbx-password-info full-width">
+              <i class="pi pi-info-circle"></i>
+              <span
+                > A senha de acesso ao RBX será a mesma cadastrada no
+                <strong>OAI Seller</strong>.</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="form-footer">
+        <button
+          pButton
+          type="button"
+          label="Cancelar"
+          icon="pi pi-times"
+          class="p-button-outlined p-button-secondary"
+          (click)="goBack()"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          label="Cadastrar Vendedor"
+          icon="pi pi-check"
+          [loading]="isSubmitting"
+          [disabled]="form.invalid || isSubmitting"
+          class="p-button-success submit-btn"
+        ></button>
+      </div>
+    </form>
+  </div>
+</div>
