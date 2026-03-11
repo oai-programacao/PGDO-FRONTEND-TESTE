@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { MessageService } from "primeng/api";
@@ -11,7 +11,10 @@ import { DatePickerModule } from "primeng/datepicker";
 import { TableModule } from "primeng/table";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { AuditSellerService } from "../audit-seller/service/audit-seller.service";
-import { AuditFlowFilterDTO, AuditFlowResponseDTO } from "../../interfaces/audit-request.model";
+import {
+  AuditFlowFilterDTO,
+  AuditFlowResponseDTO,
+} from "../../interfaces/audit-request.model";
 
 @Component({
   selector: "app-auditoria-vendedor",
@@ -46,6 +49,8 @@ export class AuditSellerComponent {
   totalRecords: number = 0;
   isLoading: boolean = false;
   searched: boolean = false;
+  currentPage: number = 0;
+  pageSize: number = 20;
 
   filtros: AuditFlowFilterDTO = {
     nameSeller: "",
@@ -72,17 +77,18 @@ export class AuditSellerComponent {
       label: "🗓️ Cancelar Agend. Suspensão",
       value: "CANCEL_SUSPENSE_SCHEDULING",
     },
-    { label: '🤝 Renegociação de Dívida', value: 'RENEGOTIATION' },
+    { label: "🤝 Renegociação de Dívida", value: "RENEGOTIATION" },
   ];
 
   // =========================================================
   // BUSCA
   // =========================================================
-  buscar() {
+  buscar(page: number = 0) {
     this.isLoading = true;
     this.searched = true;
+    this.currentPage = page;
 
-    const params: any = {};
+    const params: any = { page, size: this.pageSize };
     if (this.filtros.nameSeller?.trim())
       params.nameSeller = this.filtros.nameSeller.trim();
     if (this.filtros.cpfClientSearch?.trim())
@@ -98,8 +104,8 @@ export class AuditSellerComponent {
 
     this.auditFlowService.filtrar(params).subscribe({
       next: (data) => {
-        this.auditorias = data;
-        this.totalRecords = data.length;
+        this.auditorias = data.content;
+        this.totalRecords = data.totalElements;
         this.isLoading = false;
       },
       error: () => {
@@ -123,6 +129,7 @@ export class AuditSellerComponent {
     };
     this.auditorias = [];
     this.totalRecords = 0;
+    this.currentPage = 0;
     this.searched = false;
   }
 
@@ -158,7 +165,7 @@ export class AuditSellerComponent {
       CANCEL_CONTRACT: "flow-cancel-contract",
       SUSPENSE_CONTRACT: "flow-suspense",
       CANCEL_SUSPENSE_SCHEDULING: "flow-cancel-suspense",
-      RENEGOTIATION: 'flow-renegotiation',
+      RENEGOTIATION: "flow-renegotiation",
     };
     return map[typeFlow] ?? "";
   }
@@ -178,7 +185,7 @@ export class AuditSellerComponent {
       CANCEL_CONTRACT: "pi pi-ban",
       SUSPENSE_CONTRACT: "pi pi-pause",
       CANCEL_SUSPENSE_SCHEDULING: "pi pi-stopwatch",
-      RENEGOTIATION: 'pi pi-handshake',
+      RENEGOTIATION: "pi pi-handshake",
     };
     return map[typeFlow] ?? "pi pi-circle";
   }

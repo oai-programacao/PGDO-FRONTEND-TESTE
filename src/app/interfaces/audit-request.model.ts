@@ -26,3 +26,12 @@ export interface AuditFlowFilterDTO {
   dataInicio: Date | null;
   dataFim: Date | null;
 }
+
+export interface PaginationDTO<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}
