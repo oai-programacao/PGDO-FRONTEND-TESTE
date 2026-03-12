@@ -35,7 +35,7 @@ export class MainLayoutComponent implements OnDestroy {
         "ROLE_STORE_MANAGER",
         "ROLE_STORE_EMPLOYEE",
         "ROLE_CDS",
-        "ROLE_TOWER"
+        "ROLE_TOWER",
       ],
       expanded: false,
       children: [
@@ -44,7 +44,12 @@ export class MainLayoutComponent implements OnDestroy {
           label: "Colaboradores",
           icon: "pi pi-users",
           route: "/app/colaboradores",
-          allowedRoles: ["ROLE_ADMIN", "ROLE_STORE_MANAGER", "ROLE_ANALYST", "ROLE_TOWER"],
+          allowedRoles: [
+            "ROLE_ADMIN",
+            "ROLE_STORE_MANAGER",
+            "ROLE_ANALYST",
+            "ROLE_TOWER",
+          ],
           exactMatch: true,
         },
         {
@@ -57,7 +62,7 @@ export class MainLayoutComponent implements OnDestroy {
             "ROLE_STORE_MANAGER",
             "ROLE_ANALYST",
             "ROLE_CDS",
-            "ROLE_TOWER"
+            "ROLE_TOWER",
           ],
           exactMatch: true,
         },
@@ -72,7 +77,7 @@ export class MainLayoutComponent implements OnDestroy {
             "ROLE_STORE_MANAGER",
             "ROLE_ANALYST",
             "ROLE_CDS",
-            "ROLE_TOWER"
+            "ROLE_TOWER",
           ],
         },
       ],
@@ -88,7 +93,7 @@ export class MainLayoutComponent implements OnDestroy {
         "ROLE_STORE_MANAGER",
         "ROLE_STORE_EMPLOYEE",
         "ROLE_CDS",
-        "ROLE_TOWER"
+        "ROLE_TOWER",
       ], // Papéis para ver o item "Ordens de Serviço"
       expanded: false, // Estado inicial do submenu (opcional)
       children: [
@@ -111,7 +116,12 @@ export class MainLayoutComponent implements OnDestroy {
           label: "Gerenciar OS",
           icon: "pi pi-calendar",
           route: "/app/ordens-de-servico/gerenciar",
-          allowedRoles: ["ROLE_ADMIN", "ROLE_ANALYST", "ROLE_CDS", "ROLE_TOWER"],
+          allowedRoles: [
+            "ROLE_ADMIN",
+            "ROLE_ANALYST",
+            "ROLE_CDS",
+            "ROLE_TOWER",
+          ],
           exactMatch: true,
         },
         {
@@ -148,7 +158,7 @@ export class MainLayoutComponent implements OnDestroy {
             "ROLE_STORE_MANAGER",
             "ROLE_ANALYST",
             "ROLE_CDS",
-            "ROLE_TOWER"
+            "ROLE_TOWER",
           ],
         },
       ],
@@ -164,7 +174,7 @@ export class MainLayoutComponent implements OnDestroy {
         "ROLE_MAINTENANCE",
         "ROLE_CDS",
         "ROLE_CALL_CENTER",
-        "ROLE_TOWER"
+        "ROLE_TOWER",
       ],
       expanded: false,
       children: [
@@ -202,7 +212,7 @@ export class MainLayoutComponent implements OnDestroy {
         "ROLE_MAINTENANCE",
         "ROLE_ANALYST",
         "ROLE_CDS",
-        "ROLE_TOWER"
+        "ROLE_TOWER",
       ],
     },
     {
@@ -223,7 +233,12 @@ export class MainLayoutComponent implements OnDestroy {
           label: "Gerenciar Chamados",
           icon: "pi pi-sliders-h",
           route: "/app/chamados/gerenciar",
-          allowedRoles: ["ROLE_ADMIN", "ROLE_ANALYST", "ROLE_MAINTENANCE", "ROLE_TOWER"],
+          allowedRoles: [
+            "ROLE_ADMIN",
+            "ROLE_ANALYST",
+            "ROLE_MAINTENANCE",
+            "ROLE_TOWER",
+          ],
           exactMatch: true,
         },
       ],
@@ -240,7 +255,7 @@ export class MainLayoutComponent implements OnDestroy {
           icon: "pi pi-receipt",
           route: "/app/financeiro/gerar-carne",
           exactMatch: true,
-        }
+        },
       ],
     },
 
@@ -258,19 +273,68 @@ export class MainLayoutComponent implements OnDestroy {
       route: "/app/avisos",
       allowedRoles: ["ROLE_ADMIN"],
     },
-    // Diagnósticos
+    // Relatórios
     {
-      id: "diagnostics",
-      label: "Diagnósticos",
+      id: "reports",
+      label: "Relatórios",
       icon: "pi pi-chart-bar",
-      route: "/app/diagnosticos",
-      allowedRoles: ["ROLE_ADMIN", "ROLE_STORE_MANAGER", "ROLE_ANALYST", "ROLE_TOWER"],
+      expanded: false,
+      children: [
+        {
+          id: "report-pgdo",
+          label: "Relatório PGDO",
+          icon: "pi pi-truck",
+          route: "/app/relatorios/pgdo",
+          exactMatch: true,
+        },
+        {
+          id: "report-loja",
+          label: "Relatório Loja",
+          icon: "pi pi-shopping-bag",
+          route: "/app/relatorios/loja",
+          exactMatch: true,
+        },
+      ],
     },
     {
       id: "settings",
       label: "Configurações",
       icon: "pi pi-cog",
       route: "/app/configuracoes",
+    },
+    {
+      id: "pdv",
+      label: "OAI Seller",
+      icon: "pi pi-shopping-cart",
+      expanded: false,
+      children: [
+        {
+          id: "cadastrar-vendedor",
+          label: "Cadastrar Vendedor",
+          icon: "pi pi-user-plus",
+          route: "/app/vendedores/cadastrar",
+          allowedRoles: [
+            "ROLE_ADMIN",
+            "ROLE_STORE_MANAGER",
+            "ROLE_ANALYST",
+            "ROLE_TOWER",
+          ],
+          exactMatch: true,
+        },
+        {
+          id: "auditoria-vendedor",
+          label: "Auditoria Vendedor",
+          icon: "pi pi-compass",
+          route: "/app/vendedores/auditoria",
+          allowedRoles: [
+            "ROLE_ADMIN",
+            "ROLE_STORE_MANAGER",
+            "ROLE_ANALYST",
+            "ROLE_TOWER",
+          ],
+          exactMatch: true,
+        },
+      ],
     },
   ];
 
