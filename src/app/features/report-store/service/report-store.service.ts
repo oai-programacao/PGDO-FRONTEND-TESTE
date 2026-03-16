@@ -59,4 +59,11 @@ export class ReportStoreService {
   getTrustReleaseRankingReport(startDate: string, endDate: string): Observable<Blob> {
     return this.get('/ranking/liberacaoConfianca/report', startDate, endDate);
   }
+  getAnaliticoCancelamentoReport(startDate: string, endDate: string): Observable<Blob> {
+    return this.get('/analytical/cancel/report', startDate, endDate);
+  }
+  getAnaliticoVendasReport(startDate: string, endDate: string): Observable<Blob> {
+    return this.get('/analytical/sales/report', startDate, endDate);
+  }
+
 }

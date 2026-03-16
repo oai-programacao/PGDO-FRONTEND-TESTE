@@ -72,6 +72,8 @@ export class ReportStoreComponent implements OnDestroy {
     { label: 'Ranking de Mudança de Vencimento', value: 'mudancaVencimento' },
     { label: 'Ranking de Envio de Pagamento', value: 'envioPagamento' },
     { label: 'Ranking de Lib. de Confiança', value: 'liberacaoConfianca' },
+    { label: 'Comparativo de Cancelamentos', value: 'analiticoCancelamento' },
+    { label: 'Comparativo de Vendas', value: 'analiticoVendas' },
   ];
 
   constructor(
@@ -240,6 +242,8 @@ export class ReportStoreComponent implements OnDestroy {
       'mudancaVencimento': this.reportService.getDateTransferRankingReport(s, e),
       'envioPagamento': this.reportService.getPaymentShipmentRankingReport(s, e),
       'liberacaoConfianca': this.reportService.getTrustReleaseRankingReport(s, e),
+      'analiticoCancelamento': this.reportService.getAnaliticoCancelamentoReport(s, e),
+      'analiticoVendas': this.reportService.getAnaliticoVendasReport(s, e),
     };
     return map[key];
   }
