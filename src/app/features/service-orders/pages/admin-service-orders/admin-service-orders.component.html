@@ -584,6 +584,12 @@
     </form>
   </div>
 </div>
+<app-close-internal-network-os
+  [(visible)]="isCloseInternalNetworkDialogVisible"
+  [serviceOrder]="selectedOsToClose"
+  (onClose)="selectedOsToClose = null"
+  (onSuccess)="onEncerramentoSuccess($event)"
+/>
 <p-toast />
 
 <ng-template #loadingTemplate>

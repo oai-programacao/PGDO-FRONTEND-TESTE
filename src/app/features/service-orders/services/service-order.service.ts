@@ -15,6 +15,7 @@ import {
   ViewUnproductiveVisits,
 } from "../../../interfaces/service-order.model";
 import { environment } from "../../../../environments/environment";
+import { CloseInternalNetworkRequest, CloseInternalNetworkResponse } from "../../../interfaces/internal-network.model";
 
 @Injectable({
   providedIn: "root",
@@ -193,5 +194,14 @@ export class ServiceOrderService {
 
   getExpiredCount(): Observable<CountResponse> {
     return this.http.get<CountResponse>(`${this.apiUrl}/status/expired/count`);
+  }
+
+  closeInternalNetworkOrder(
+    dto: CloseInternalNetworkRequest
+  ): Observable<CloseInternalNetworkResponse> {
+    return this.http.post<CloseInternalNetworkResponse>(
+      `${this.apiUrl}/close-internal-network`,
+      dto
+    );
   }
 }

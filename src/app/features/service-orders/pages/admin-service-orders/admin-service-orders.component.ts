@@ -58,10 +58,13 @@ import { EditComponent } from "../../components/edit/edit.component";
 import { ObservationComponent } from "../../components/observation/observation.component";
 import { ConfirmDialogModule } from "primeng/confirmdialog";
 import { BadgeModule } from "primeng/badge";
+import { CloseInternalNetworkOsComponent } from '../close-internal-network-os/close-internal-network-os.component';
+
 import {
   ClientType,
   ClientTypeLabels,
 } from "../../../../interfaces/enums.model";
+import { CloseInternalNetworkRequest, CloseInternalNetworkResponse } from "../../../../interfaces/internal-network.model";
 @Component({
   selector: "app-admin-service-orders",
   imports: [
@@ -88,6 +91,7 @@ import {
     ObservationComponent,
     ConfirmDialogModule,
     BadgeModule,
+    CloseInternalNetworkOsComponent
   ],
   templateUrl: "./admin-service-orders.component.html",
   styleUrl: "./admin-service-orders.component.scss",
@@ -130,6 +134,8 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
   selectedShopOs!: ViewServiceOrderDto;
   shopOsForm!: FormGroup;
   isSubmittingShopOs = false;
+  isCloseInternalNetworkDialogVisible = false;
+  selectedOsToClose: ViewServiceOrderDto | null = null;
 
   selectedServiceOrder: ViewServiceOrderDto | null = null;
 
@@ -399,49 +405,60 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
 
   updateServiceOrder(index: number): void {
     const formGroup = this.orders.at(index) as FormGroup;
-    const id = formGroup.get("id")?.value;
-
+    const id = formGroup.get('id')?.value;
     if (!id) return;
 
-    const technician = formGroup.get("technician")?.value;
-    const startOfOs = formGroup.get("startOfOs")?.value;
-    const endOfOs = formGroup.get("endOfOs")?.value;
+    const technician = formGroup.get('technician')?.value;
+    const startOfOs = formGroup.get('startOfOs')?.value;
+    const endOfOs = formGroup.get('endOfOs')?.value;
+    const status = formGroup.get('status')?.value;
+    const subTypeOs = formGroup.get('subTypeOs')?.value;
 
-    // Validações
+    // Validações existentes...
     if (!technician && (startOfOs || endOfOs)) {
       this.messageService.add({
-        severity: "warn",
-        summary: "Validação",
-        detail:
-          "Para informar horário de início ou fim, é necessário definir um técnico.",
+        severity: 'warn',
+        summary: 'Validação',
+        detail: 'Para informar horário, defina um técnico.',
       });
-      formGroup.get("startOfOs")?.setValue(null, { emitEvent: false });
-      formGroup.get("endOfOs")?.setValue(null, { emitEvent: false });
+      formGroup.get('startOfOs')?.setValue(null, { emitEvent: false });
+      formGroup.get('endOfOs')?.setValue(null, { emitEvent: false });
       return;
     }
 
     if (technician && !startOfOs && endOfOs) {
       this.messageService.add({
-        severity: "warn",
-        summary: "Validação",
-        detail:
-          "Para informar o horário de fim, o horário de início deve estar preenchido.",
+        severity: 'warn',
+        summary: 'Validação',
+        detail: 'Informe o horário de início antes do fim.',
       });
-      formGroup.get("endOfOs")?.setValue(null, { emitEvent: false });
+      formGroup.get('endOfOs')?.setValue(null, { emitEvent: false });
       return;
     }
 
+    // ✅ INTERCEPTAÇÃO: se mudou para EXECUTED e é OS de rede interna/cômodo
+    const isInternalNetworkOs =
+      subTypeOs === 'MUDANCA_DE_COMODO' || subTypeOs === 'REDE_INTERNA';
+
+    if (status === ServiceOrderStatus.EXECUTED && isInternalNetworkOs) {
+      const osData = this.dataSource[index];
+      this.abrirDialogEncerramento(osData, index);
+      formGroup.get('status')?.setValue(ServiceOrderStatus.IN_PRODUCTION, { emitEvent: false });
+      return;
+    }
+
+    // Fluxo normal para outras OS
     const dto: UpdateServiceOrderDto = {
-      scheduleDate: formGroup.get("scheduleDate")?.value || null,
-      period: formGroup.get("period")?.value || null,
-      technology: formGroup.get("technology")?.value || null,
+      scheduleDate: formGroup.get('scheduleDate')?.value || null,
+      period: formGroup.get('period')?.value || null,
+      technology: formGroup.get('technology')?.value || null,
       technicianId: technician || null,
-      status: formGroup.get("status")?.value || null,
-      cabling: formGroup.get("cabling")?.value ?? null,
+      status: status || null,
+      cabling: formGroup.get('cabling')?.value ?? null,
       isActiveToReport: undefined,
       startOfOs: startOfOs || null,
       endOfOs: endOfOs || null,
-      observation: formGroup.get("observation")?.value || null,
+      observation: formGroup.get('observation')?.value || null,
     };
 
     this.serviceOrderService.update(id, dto).subscribe({
@@ -455,20 +472,17 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
             observation: updated?.observation ?? dto.observation,
             durationOfOs: updated?.durationOfOs,
           },
-          { emitEvent: false },
+          { emitEvent: false }
         );
-        // Se status for "Executado", recarrega a lista
-        const updatedStatus = updated?.status ?? dto.status;
-
-        if (updatedStatus === ServiceOrderStatus.EXECUTED) {
+        if (updated?.status === ServiceOrderStatus.EXECUTED) {
           this.loadServiceOrders();
         }
       },
-      error: (err) => {
+      error: () => {
         this.messageService.add({
-          severity: "error",
-          summary: "Erro",
-          detail: "Erro ao atualizar Ordem de Serviço.",
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao atualizar Ordem de Serviço.',
         });
       },
     });
@@ -862,7 +876,7 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       return;
     }
 
-     if (this.selectedShopOs.status === ServiceOrderStatus.CANCELED) {
+    if (this.selectedShopOs.status === ServiceOrderStatus.CANCELED) {
       this.messageService.add({
         severity: "error",
         summary: "Erro",
@@ -908,5 +922,20 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     }
 
     return value;
+  }
+
+  abrirDialogEncerramento(os: ViewServiceOrderDto, index: number): void {
+    this.selectedOsToClose = os;
+    this.isCloseInternalNetworkDialogVisible = true;
+  }
+
+  onEncerramentoSuccess(response: CloseInternalNetworkResponse): void {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'OS encerrada!',
+      detail: response.message,
+      life: 5000,
+    });
+    this.loadServiceOrders();
   }
 }
