@@ -436,17 +436,6 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // ✅ INTERCEPTAÇÃO: se mudou para EXECUTED e é OS de rede interna/cômodo
-    const isInternalNetworkOs =
-      subTypeOs === 'MUDANCA_DE_COMODO' || subTypeOs === 'REDE_INTERNA';
-
-    if (status === ServiceOrderStatus.EXECUTED && isInternalNetworkOs) {
-      const osData = this.dataSource[index];
-      this.abrirDialogEncerramento(osData, index);
-      formGroup.get('status')?.setValue(ServiceOrderStatus.IN_PRODUCTION, { emitEvent: false });
-      return;
-    }
-
     // Fluxo normal para outras OS
     const dto: UpdateServiceOrderDto = {
       scheduleDate: formGroup.get('scheduleDate')?.value || null,
@@ -924,10 +913,16 @@ export class AdminServiceOrdersComponent implements OnInit, OnDestroy {
     return value;
   }
 
-  abrirDialogEncerramento(os: ViewServiceOrderDto, index: number): void {
+  abrirDialogEncerramento(os: ViewServiceOrderDto): void {
     this.selectedOsToClose = os;
     this.isCloseInternalNetworkDialogVisible = true;
   }
+
+  isInternalNetworkOs(os: ViewServiceOrderDto): boolean {
+  return os.subTypeOs?.includes(SubTypeServiceOrder.MUDANCA_DE_COMODO)
+      || os.subTypeOs?.includes(SubTypeServiceOrder.REDE_INTERNA)
+      || false;
+}
 
   onEncerramentoSuccess(response: CloseInternalNetworkResponse): void {
     this.messageService.add({

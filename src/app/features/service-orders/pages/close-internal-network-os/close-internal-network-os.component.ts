@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, switchMap } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -14,12 +14,12 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
 import { ServiceOrderService } from '../../services/service-order.service';
-import { ViewServiceOrderDto } from '../../../../interfaces/service-order.model';
+import { UpdateServiceOrderDto, ViewServiceOrderDto } from '../../../../interfaces/service-order.model';
 import {
   CloseInternalNetworkRequest,
   CloseInternalNetworkResponse,
 } from '../../../../interfaces/internal-network.model';
-import { SubTypeServiceOrder } from '../../../../interfaces/enums.model';
+import { ServiceOrderStatus, SubTypeServiceOrder } from '../../../../interfaces/enums.model';
 
 @Component({
   selector: 'app-close-internal-network-os',
@@ -46,16 +46,24 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
   @Input() serviceOrder: ViewServiceOrderDto | null = null;
+  @Input() technicianOptions: { label: string; value: string | null }[] = [];
 
   @Output() onClose = new EventEmitter<void>();
   @Output() onSuccess = new EventEmitter<CloseInternalNetworkResponse>();
 
   SubTypeServiceOrder = SubTypeServiceOrder;
+  ServiceOrderStatus = ServiceOrderStatus;
   closeForm!: FormGroup;
   isSubmitting = false;
   totalCalculado = 0;
 
   private destroy$ = new Subject<void>();
+
+  periodOptions = [
+    { label: 'Manhã', value: 'MORNING' },
+    { label: 'Tarde', value: 'AFTERNOON' },
+    { label: 'Noite', value: 'NIGHT' },
+  ];
 
   osClassificationOptions = [
     { label: 'Suporte', value: 'SUPORTE' },
@@ -84,6 +92,10 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
   private initForm(): void {
     this.totalCalculado = 0;
     this.closeForm = this.fb.group({
+      startOfOs: [null, Validators.required],
+      endOfOs: [null, Validators.required],
+      technicianId: [null],
+      period: [null],
       conclusionDate: [null, Validators.required],
       osClassification: [null, Validators.required],
       billingDate: [null],
@@ -116,23 +128,34 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
     this.isSubmitting = true;
     const v = this.closeForm.value;
 
-    const payload: CloseInternalNetworkRequest = {
-      serviceOrderId: this.serviceOrder.id,
-      contractNumber: this.serviceOrder.contractNumber!,
-      conclusionDate: this.formatarData(v.conclusionDate)!,
-      osClassification: v.osClassification,
-      cableMeters: v.cableMeters || null,
-      technicalHours: v.technicalHours || null,
-      rj45Connectors: v.rj45Connectors || null,
-      additionalDescription: v.additionalDescription || null,
-      additionalValue: v.additionalValue || null,
-      observation: v.observation || null,
-      billingDate: this.formatarData(v.billingDate) || null,
+    const updateDto: UpdateServiceOrderDto = {
+      status: ServiceOrderStatus.EXECUTED,
+      startOfOs: v.startOfOs || null,
+      endOfOs: v.endOfOs || null,
+      technicianId: v.technicianId || null,
+      period: v.period || null,
     };
 
-    this.serviceOrderService
-      .closeInternalNetworkOrder(payload)
-      .pipe(finalize(() => (this.isSubmitting = false)))
+    this.serviceOrderService.update(this.serviceOrder.id, updateDto)
+      .pipe(
+        switchMap(() => {
+          const payload: CloseInternalNetworkRequest = {
+            serviceOrderId: this.serviceOrder!.id,
+            contractNumber: this.serviceOrder!.contractNumber!,
+            conclusionDate: this.formatarData(v.conclusionDate)!,
+            osClassification: v.osClassification,
+            cableMeters: v.cableMeters || null,
+            technicalHours: v.technicalHours || null,
+            rj45Connectors: v.rj45Connectors || null,
+            additionalDescription: v.additionalDescription || null,
+            additionalValue: v.additionalValue || null,
+            observation: v.observation || null,
+            billingDate: this.formatarData(v.billingDate),
+          };
+          return this.serviceOrderService.closeInternalNetworkOrder(payload);
+        }),
+        finalize(() => (this.isSubmitting = false))
+      )
       .subscribe({
         next: (response) => {
           this.visibleChange.emit(false);

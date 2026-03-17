@@ -96,6 +96,74 @@
         />
       </div>
     </div>
+    <!-- EXECUÇÃO -->
+        <div class="border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
+            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                <i class="pi pi-play"></i>
+                Execução da OS
+            </h3>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Início <span class="text-red-500">*</span>
+            </label>
+            <input
+                type="time"
+                class="p-inputtext w-full"
+                [value]="closeForm.get('startOfOs')!.value || ''"
+                (input)="closeForm.get('startOfOs')!.setValue($any($event.target).value)"
+            />
+            <small class="text-red-500"
+                *ngIf="closeForm.get('startOfOs')?.invalid && closeForm.get('startOfOs')?.touched">
+                Campo obrigatório
+            </small>
+            </div>
+            <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Fim <span class="text-red-500">*</span>
+            </label>
+            <input
+                type="time"
+                class="p-inputtext w-full"
+                [value]="closeForm.get('endOfOs')!.value || ''"
+                (input)="closeForm.get('endOfOs')!.setValue($any($event.target).value)"
+            />
+            <small class="text-red-500"
+                *ngIf="closeForm.get('endOfOs')?.invalid && closeForm.get('endOfOs')?.touched">
+                Campo obrigatório
+            </small>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Técnico Responsável
+            </label>
+            <p-select
+                formControlName="technicianId"
+                [options]="technicianOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione"
+                appendTo="body"
+                showClear
+            />
+            </div>
+            <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Período
+            </label>
+            <p-select
+                formControlName="period"
+                [options]="periodOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione"
+                appendTo="body"
+            />
+            </div>
+        </div>
+    </div>
 
     <!-- MATERIAIS -->
     <div class="border-t border-slate-200 dark:border-slate-700 pt-4 mb-4">
