@@ -105,6 +105,7 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
       additionalDescription: [''],
       additionalValue: [0],
       observation: [''],
+      semCobranca: [false],
     });
 
     this.closeForm.valueChanges
@@ -114,6 +115,12 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
 
   recalcularTotal(): void {
     if (!this.closeForm) return;
+
+    if (this.closeForm.get('semCobranca')?.value) {
+      this.totalCalculado = 0;
+      return;
+    }
+
     const v = this.closeForm.value;
     const cabo = (v.cableMeters || 0) * 5.5;
     const horas = (v.technicalHours || 0) * 70;
@@ -127,6 +134,7 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
 
     this.isSubmitting = true;
     const v = this.closeForm.value;
+    const semCobranca = v.semCobranca;
 
     const updateDto: UpdateServiceOrderDto = {
       status: ServiceOrderStatus.EXECUTED,
@@ -144,11 +152,11 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
             contractNumber: this.serviceOrder!.contractNumber!,
             conclusionDate: this.formatarData(v.conclusionDate)!,
             osClassification: v.osClassification,
-            cableMeters: v.cableMeters || null,
-            technicalHours: v.technicalHours || null,
-            rj45Connectors: v.rj45Connectors || null,
-            additionalDescription: v.additionalDescription || null,
-            additionalValue: v.additionalValue || null,
+            cableMeters: semCobranca ? null : (v.cableMeters || null),
+            technicalHours: semCobranca ? null : (v.technicalHours || null),
+            rj45Connectors: semCobranca ? null : (v.rj45Connectors || null),
+            additionalDescription: semCobranca ? null : (v.additionalDescription || null),
+            additionalValue: semCobranca ? null : (v.additionalValue || null),
             observation: v.observation || null,
             billingDate: this.formatarData(v.billingDate),
           };
@@ -158,9 +166,12 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.visibleChange.emit(false);
           this.onSuccess.emit(response);
           this.fechar();
+          this.totalCalculado = 0;
+          if (this.closeForm) this.closeForm.reset();
+          this.visibleChange.emit(false);
+          this.onClose.emit();
         },
         error: (err) => {
           const detail = err?.error?.message || 'Erro ao encerrar a OS.';
@@ -176,10 +187,28 @@ export class CloseInternalNetworkOsComponent implements OnChanges, OnDestroy {
     this.visibleChange.emit(false);
     this.onClose.emit();
   }
+
   private formatarData(data: string | null): string | null {
     if (!data) return null;
     const partes = data.split('/');
     if (partes.length !== 3) return data;
     return `${partes[2]}-${partes[1]}-${partes[0]}`;
+  }
+
+  onSemCobrancaChange(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.closeForm.patchValue({
+        cableMeters: 0,
+        technicalHours: 0,
+        rj45Connectors: 0,
+        additionalDescription: '',
+        additionalValue: 0,
+      });
+      this.closeForm.get('additionalDescription')?.disable();
+      this.totalCalculado = 0;
+    } else {
+      this.closeForm.get('additionalDescription')?.enable();
+    }
   }
 }

@@ -79,7 +79,7 @@
     </div>
 
     <!-- DATA FATURAMENTO -->
-    <div class="grid grid-cols-2 gap-4 mb-4">
+   <div class="grid grid-cols-2 gap-4 mb-4" *ngIf="!closeForm.get('semCobranca')?.value">
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
           Data de Faturamento
@@ -164,6 +164,18 @@
             </div>
         </div>
     </div>
+    <div class="flex items-center gap-2 mb-4">
+        <input
+            type="checkbox"
+            id="semCobranca"
+            formControlName="semCobranca"
+            class="w-4 h-4 cursor-pointer accent-blue-600"
+            (change)="onSemCobrancaChange($event)"
+        />
+        <label for="semCobranca" class="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+            Serviço sem cobrança
+        </label>
+    </div>
 
     <!-- MATERIAIS -->
     <div class="border-t border-slate-200 dark:border-slate-700 pt-4 mb-4">
@@ -181,6 +193,7 @@
           <p-inputNumber
             formControlName="cableMeters"
             [min]="0"
+            [disabled]="closeForm.get('semCobranca')?.value"
             [minFractionDigits]="1"
             [maxFractionDigits]="2"
             placeholder="0"
@@ -194,10 +207,11 @@
           <p-inputNumber
             formControlName="technicalHours"
             [min]="0"
+            [disabled]="closeForm.get('semCobranca')?.value"
             [minFractionDigits]="1"
             [maxFractionDigits]="2"
             placeholder="0"
-          />
+            />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
@@ -207,9 +221,10 @@
           <p-inputNumber
             formControlName="rj45Connectors"
             [min]="0"
+            [disabled]="closeForm.get('semCobranca')?.value"
             [useGrouping]="false"
             placeholder="0"
-          />
+            />
         </div>
       </div>
     </div>
@@ -243,8 +258,9 @@
             currency="BRL"
             locale="pt-BR"
             [min]="0"
+            [disabled]="closeForm.get('semCobranca')?.value"
             placeholder="0,00"
-          />
+            />
         </div>
       </div>
     </div>
