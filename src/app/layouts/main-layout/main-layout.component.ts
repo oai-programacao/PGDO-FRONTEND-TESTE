@@ -278,6 +278,7 @@ export class MainLayoutComponent implements OnDestroy {
       id: "reports",
       label: "Relatórios",
       icon: "pi pi-chart-bar",
+      allowedRoles: ["ROLE_ADMIN", "ROLE_STORE_MANAGER"],
       expanded: false,
       children: [
         {

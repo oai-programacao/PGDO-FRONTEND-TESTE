@@ -351,9 +351,7 @@
             <td>{{ getSubTypeOsLabel(os.subTypeOs) }}</td>
             <td>
               <p-datepicker
-                *ngIf="
-                  !(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller)
-                "
+                *ngIf="!(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller) && !isInternalNetworkOs(os)"
                 formControlName="scheduleDate"
                 dateFormat="dd/mm/yy"
                 dataType="string"
@@ -366,9 +364,8 @@
             </td>
             <td>
               <p-select
-                *ngIf="
-                  !(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller)
-                "
+                *ngIf="!(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller) && !isInternalNetworkOs(os)"
+
                 [options]="periodOptions"
                 formControlName="period"
                 appendTo="body"
@@ -377,9 +374,8 @@
             </td>
             <td>
               <p-select
-                *ngIf="
-                  !(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller)
-                "
+                *ngIf="!(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller) && !isInternalNetworkOs(os)"
+
                 [options]="technicianOptions"
                 formControlName="technician"
                 optionLabel="label"
@@ -392,9 +388,8 @@
             </td>
             <td>
               <p-datepicker
-                *ngIf="
-                  !(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller)
-                "
+                *ngIf="!(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller) && !isInternalNetworkOs(os)"
+
                 formControlName="startOfOs"
                 styleClass="min-w-[5rem]"
                 [timeOnly]="true"
@@ -407,9 +402,8 @@
             </td>
             <td>
               <p-datepicker
-                *ngIf="
-                  !(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller)
-                "
+                *ngIf="!(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller) && !isInternalNetworkOs(os)"
+
                 formControlName="endOfOs"
                 styleClass="min-w-[5rem]"
                 [timeOnly]="true"
@@ -422,9 +416,8 @@
             </td>
             <td>
               <ng-container
-                *ngIf="
-                  !(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller)
-                "
+                *ngIf="!(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller) && !isInternalNetworkOs(os)"
+
               >
                 {{ os.durationOfOs | formatDuration }}
               </ng-container>
@@ -433,9 +426,8 @@
             <td>
               <!-- STATUS EDITÁVEL (NÃO VENDA) -->
               <p-select
-                *ngIf="
-                  !(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller)
-                "
+                *ngIf="!(os.typeOfOs === 'INSTALLATION' && os.responsibleSeller) && !isInternalNetworkOs(os)"
+
                 [options]="statusOptions"
                 formControlName="status"
                 optionLabel="label"
@@ -518,8 +510,36 @@
                   (click)="openShopOsDialog(os)"
                 ></button>
               </div>
-            </td>
+              <div
+                *ngIf="isInternalNetworkOs(os)"
+                class="flex items-center justify-between gap-4"
+              >
+                <span
+                  class="px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap"
+                  [ngClass]="{
+                    'status-executado': os.status === ServiceOrderStatus.EXECUTED,
+                    'status-andamento': os.status === ServiceOrderStatus.IN_PRODUCTION,
+                    'status-cancelado': os.status === ServiceOrderStatus.CANCELED,
+                    'status-reagendado': os.status === ServiceOrderStatus.RESCHEDULED
+                  }"
+                >
+                  {{ getStatusLabel(os.status) }}
+                </span>
 
+                <button
+                  *ngIf="os.status !== ServiceOrderStatus.EXECUTED && os.status !== ServiceOrderStatus.CANCELED"
+                  pButton
+                  size="large"
+                  severity="contrast"
+                  icon="pi pi-angle-right"
+                  [rounded]="true"
+                  [raised]="true"
+                  pTooltip="Encerrar OS"
+                  (click)="abrirDialogEncerramento(os)"
+                ></button>
+              </div>
+            </td>
+          
             <td>
               <div class="flex flex-col items-center justify-center gap-2">
                 <div>
@@ -584,6 +604,13 @@
     </form>
   </div>
 </div>
+<app-close-internal-network-os
+  [(visible)]="isCloseInternalNetworkDialogVisible"
+  [serviceOrder]="selectedOsToClose"
+  [technicianOptions]="technicianOptions"
+  (onClose)="selectedOsToClose = null"
+  (onSuccess)="onEncerramentoSuccess($event)"
+/>
 <p-toast />
 
 <ng-template #loadingTemplate>

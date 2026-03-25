@@ -1,0 +1,33 @@
+// O componente usa Tailwind para layout e PrimeNG para os inputs
+// Este arquivo existe para overrides pontuais do PrimeNG dentro do dialog
+
+:host ::ng-deep {
+
+  .p-dialog-content {
+    padding: 1.5rem;
+  }
+
+  // Garante que inputs numéricos ocupem 100% da largura da coluna
+  .p-inputnumber {
+    width: 100%;
+
+    .p-inputnumber-input {
+      width: 100%;
+    }
+  }
+
+  // Textarea responsivo
+  textarea.p-textarea {
+    width: 100%;
+  }
+
+  // Select responsivo
+  .p-select {
+    width: 100%;
+  }
+
+  // Datepicker responsivo
+  .p-datepicker {
+    width: 100%;
+  }
+}

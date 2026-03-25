@@ -1,0 +1,358 @@
+<p-toast></p-toast>
+
+<p-dialog
+  [header]="serviceOrder?.subTypeOs?.includes(SubTypeServiceOrder.MUDANCA_DE_COMODO) ? '🏠 Encerrar OS — Mudança de Cômodo' : '🔧 Encerrar OS — Rede Interna'"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!isSubmitting"
+  [style]="{ width: '52rem' }"
+  (onHide)="fechar()"
+>
+
+  <!-- LOADING -->
+  <div *ngIf="isSubmitting" class="flex justify-center items-center py-8 gap-3">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    <span class="text-slate-600 dark:text-slate-300">Processando encerramento...</span>
+  </div>
+
+  <!-- FORM -->
+  <form *ngIf="!isSubmitting && closeForm" [formGroup]="closeForm" class="p-fluid">
+
+    <!-- INFO HEADER -->
+    <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-5 border border-slate-200 dark:border-slate-700">
+      <div class="grid grid-cols-3 gap-4 text-sm">
+        <div>
+          <span class="text-slate-500 block mb-1">Contrato</span>
+          <strong class="text-slate-800 dark:text-slate-100">{{ serviceOrder?.contractNumber }}</strong>
+        </div>
+        <div>
+          <span class="text-slate-500 block mb-1">Cliente</span>
+          <strong class="text-slate-800 dark:text-slate-100">{{ serviceOrder?.clientName }}</strong>
+        </div>
+        <div>
+          <span class="text-slate-500 block mb-1">Tipo</span>
+          <strong class="text-slate-800 dark:text-slate-100">
+            {{ serviceOrder?.subTypeOs?.includes(SubTypeServiceOrder.MUDANCA_DE_COMODO) ? 'Mudança de Cômodo' : 'Rede Interna' }}
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA CONCLUSÃO + CLASSIFICAÇÃO -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          Data de Conclusão <span class="text-red-500">*</span>
+        </label>
+        <p-datepicker
+          formControlName="conclusionDate"
+          dateFormat="dd/mm/yy"
+          dataType="string"
+          [showIcon]="true"
+          appendTo="body"
+          placeholder="dd/mm/aaaa"
+        />
+        <small class="text-red-500"
+          *ngIf="closeForm.get('conclusionDate')?.invalid && closeForm.get('conclusionDate')?.touched">
+          Campo obrigatório
+        </small>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          Classificação da OS <span class="text-red-500">*</span>
+        </label>
+        <p-select
+          formControlName="osClassification"
+          [options]="osClassificationOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          appendTo="body"
+        />
+        <small class="text-red-500"
+          *ngIf="closeForm.get('osClassification')?.invalid && closeForm.get('osClassification')?.touched">
+          Campo obrigatório
+        </small>
+      </div>
+    </div>
+
+    <!-- DATA FATURAMENTO -->
+   <div class="grid grid-cols-2 gap-4 mb-4" *ngIf="!closeForm.get('semCobranca')?.value">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          Data de Faturamento
+          <span class="text-xs text-slate-400 ml-1">(opcional — padrão: +30 dias)</span>
+        </label>
+        <p-datepicker
+          formControlName="billingDate"
+          dateFormat="dd/mm/yy"
+          dataType="string"
+          [showIcon]="true"
+          appendTo="body"
+          placeholder="dd/mm/aaaa"
+          showClear
+        />
+      </div>
+    </div>
+    <!-- EXECUÇÃO -->
+        <div class="border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
+            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                <i class="pi pi-play"></i>
+                Execução da OS
+            </h3>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Início <span class="text-red-500">*</span>
+            </label>
+            <input
+                type="time"
+                class="p-inputtext w-full"
+                [value]="closeForm.get('startOfOs')!.value || ''"
+                (input)="closeForm.get('startOfOs')!.setValue($any($event.target).value)"
+            />
+            <small class="text-red-500"
+                *ngIf="closeForm.get('startOfOs')?.invalid && closeForm.get('startOfOs')?.touched">
+                Campo obrigatório
+            </small>
+            </div>
+            <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Fim <span class="text-red-500">*</span>
+            </label>
+            <input
+                type="time"
+                class="p-inputtext w-full"
+                [value]="closeForm.get('endOfOs')!.value || ''"
+                (input)="closeForm.get('endOfOs')!.setValue($any($event.target).value)"
+            />
+            <small class="text-red-500"
+                *ngIf="closeForm.get('endOfOs')?.invalid && closeForm.get('endOfOs')?.touched">
+                Campo obrigatório
+            </small>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Técnico Responsável
+            </label>
+            <p-select
+                formControlName="technicianId"
+                [options]="technicianOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione"
+                appendTo="body"
+                showClear
+            />
+            </div>
+            <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Período
+            </label>
+            <p-select
+                formControlName="period"
+                [options]="periodOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecione"
+                appendTo="body"
+            />
+            </div>
+        </div>
+    </div>
+    <div class="flex items-center gap-2 mb-4">
+        <input
+            type="checkbox"
+            id="semCobranca"
+            formControlName="semCobranca"
+            class="w-4 h-4 cursor-pointer accent-blue-600"
+            (change)="onSemCobrancaChange($event)"
+        />
+        <label for="semCobranca" class="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+            Serviço sem cobrança
+        </label>
+    </div>
+
+    <!-- MATERIAIS -->
+    <div class="border-t border-slate-200 dark:border-slate-700 pt-4 mb-4">
+      <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+        <i class="pi pi-wrench"></i>
+        Materiais Utilizados
+        <span class="text-xs font-normal text-slate-400">(deixe 0 se não utilizado)</span>
+      </h3>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            Cabo UTP (metros)
+            <span class="text-xs text-slate-400 ml-1">R$ 5,50/m</span>
+          </label>
+          <p-inputNumber
+            formControlName="cableMeters"
+            [min]="0"
+            [disabled]="closeForm.get('semCobranca')?.value"
+            [minFractionDigits]="1"
+            [maxFractionDigits]="2"
+            placeholder="0"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            Horas Técnicas
+            <span class="text-xs text-slate-400 ml-1">R$ 70,00/h</span>
+          </label>
+          <p-inputNumber
+            formControlName="technicalHours"
+            [min]="0"
+            [disabled]="closeForm.get('semCobranca')?.value"
+            [minFractionDigits]="1"
+            [maxFractionDigits]="2"
+            placeholder="0"
+            />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            Conectores RJ45 (un.)
+            <span class="text-xs text-slate-400 ml-1">R$ 4,00/un</span>
+          </label>
+          <p-inputNumber
+            formControlName="rj45Connectors"
+            [min]="0"
+            [disabled]="closeForm.get('semCobranca')?.value"
+            [useGrouping]="false"
+            placeholder="0"
+            />
+        </div>
+      </div>
+    </div>
+
+    <!-- ADICIONAL -->
+    <div class="border-t border-slate-200 dark:border-slate-700 pt-4 mb-4">
+      <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+        <i class="pi pi-plus-circle"></i>
+        Item Adicional
+        <span class="text-xs font-normal text-slate-400">(opcional)</span>
+      </h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            Descrição do Adicional
+          </label>
+          <input
+            type="text"
+            pInputText
+            formControlName="additionalDescription"
+            placeholder="Ex: Suporte, espelho, canaleta..."
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            Valor (R$)
+          </label>
+          <p-inputNumber
+            formControlName="additionalValue"
+            mode="currency"
+            currency="BRL"
+            locale="pt-BR"
+            [min]="0"
+            [disabled]="closeForm.get('semCobranca')?.value"
+            placeholder="0,00"
+            />
+        </div>
+      </div>
+    </div>
+
+    <!-- OBSERVAÇÃO -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+        Observações
+      </label>
+      <textarea
+        pTextarea
+        formControlName="observation"
+        rows="3"
+        placeholder="Descreva o serviço realizado..."
+        style="width: 100%; resize: none;"
+      ></textarea>
+    </div>
+
+    <!-- RESUMO FINANCEIRO -->
+    <div
+      class="rounded-lg p-4 border"
+      [ngClass]="{
+        'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700': totalCalculado === 0,
+        'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700': totalCalculado > 0
+      }"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i
+            class="pi"
+            [ngClass]="{
+              'pi-check-circle text-green-600': totalCalculado === 0,
+              'pi-dollar text-blue-600': totalCalculado > 0
+            }"
+          ></i>
+          <span
+            class="text-sm font-medium"
+            [ngClass]="{
+              'text-green-700 dark:text-green-400': totalCalculado === 0,
+              'text-blue-700 dark:text-blue-400': totalCalculado > 0
+            }"
+          >
+            {{ totalCalculado === 0 ? 'Sem cobrança — serviço gratuito' : 'Total a cobrar' }}
+          </span>
+        </div>
+        <strong
+          class="text-lg"
+          [ngClass]="{
+            'text-green-700 dark:text-green-400': totalCalculado === 0,
+            'text-blue-700 dark:text-blue-400': totalCalculado > 0
+          }"
+        >
+          {{ totalCalculado | currency:'BRL' }}
+        </strong>
+      </div>
+      <div
+        class="mt-2 text-xs flex items-center gap-1"
+        [ngClass]="{
+          'text-green-600': totalCalculado === 0,
+          'text-blue-600': totalCalculado > 0
+        }"
+      >
+        <i class="pi pi-info-circle"></i>
+        {{ totalCalculado > 0 ? 'Um boleto será gerado automaticamente ao confirmar.' : 'Nenhum boleto será gerado.' }}
+      </div>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (click)="fechar()"
+        [disabled]="isSubmitting"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Confirmar Encerramento"
+        icon="pi pi-check"
+        severity="success"
+        (click)="confirmar()"
+        [disabled]="!closeForm || closeForm.invalid || isSubmitting"
+        [loading]="isSubmitting"
+      ></button>
+    </div>
+  </ng-template>
+
+</p-dialog>

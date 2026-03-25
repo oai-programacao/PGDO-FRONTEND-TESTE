@@ -1,0 +1,469 @@
+<div class="rd-diagnostic">
+
+  <p-toast position="top-right" />
+
+  <!-- Header -->
+  <header class="rd-header">
+    <div class="rd-header__inner">
+      <div class="rd-header__title">
+        <div class="rd-header__icon">
+          <!-- wrench / diagnostic icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Relatório PGDO</h1>
+          <p>Selecione os filtros e visualize os relatórios de diagnóstico operacional</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="rd-main">
+
+    <!-- ── CARD DE FILTROS ──────────────────────────────────────────────── -->
+    <div class="rd-card rd-card--filters">
+
+      <!-- SEÇÃO 1: Gerar por período -->
+      <div class="rd-section">
+        <div class="rd-section__title">
+          <div class="rd-section__icon rd-section__icon--teal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Gerar Relatório por Período</h3>
+            <p>Selecione o intervalo de datas e os relatórios desejados</p>
+          </div>
+        </div>
+
+        <div class="rd-filters">
+          <!-- Date Range -->
+          <div class="rd-filter-group">
+            <label class="rd-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Período
+            </label>
+            <p-datepicker
+              [(ngModel)]="dateRange"
+              selectionMode="range"
+              [readonlyInput]="true"
+              placeholder="Selecione o intervalo"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              appendTo="body"
+              styleClass="rd-datepicker"
+              [disabled]="isLoading"
+              [maxDate]="today"
+            />
+            <span class="rd-field-error" *ngIf="dateRangeInvalid">
+              A data final não pode ser anterior à data inicial.
+            </span>
+          </div>
+
+          <!-- MultiSelect -->
+          <div class="rd-filter-group rd-filter-group--wide">
+            <label class="rd-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Relatórios
+            </label>
+            <p-multiSelect
+              [options]="reportOptions"
+              [(ngModel)]="selectedReports"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Selecione um ou mais relatórios"
+              appendTo="body"
+              styleClass="rd-multiselect"
+              [disabled]="isLoading"
+              [maxSelectedLabels]="2"
+              selectedItemsLabel="{0} relatórios selecionados"
+            />
+          </div>
+
+          <!-- Botões Gerar + Limpar -->
+          <div class="rd-filter-group rd-filter-group--action">
+            <label class="rd-label rd-label--invisible">Ação</label>
+            <div class="rd-filter-action-row">
+              <button
+                class="rd-btn rd-btn--primary"
+                [class.rd-btn--loading]="isLoading"
+                [disabled]="!canGenerate"
+                (click)="generateReports()"
+              >
+                <span class="rd-btn__spinner" *ngIf="isLoading">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                  </svg>
+                </span>
+                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <span>{{ isLoading ? 'Gerando...' : 'Gerar Relatório' }}</span>
+              </button>
+              <button
+                class="rd-btn rd-btn--clear"
+                *ngIf="dateRange || selectedReports.length > 0"
+                [disabled]="isLoading"
+                (click)="clearFilters()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                <span>Limpar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divisor -->
+      <div class="rd-divider"><span>ou</span></div>
+
+      <!-- SEÇÃO 2: Comparativo Mensal -->
+      <div class="rd-section rd-section--compare">
+        <div class="rd-section__title">
+          <div class="rd-section__icon rd-section__icon--amber">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Comparativo Mensal</h3>
+            <p>Gera o mês atual completo vs mês anterior completo — sem precisar selecionar datas</p>
+          </div>
+        </div>
+
+        <div class="rd-filters">
+          <div class="rd-filter-group rd-filter-group--wide">
+            <label class="rd-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Relatório
+            </label>
+            <p-dropdown
+              [options]="reportOptions"
+              [(ngModel)]="selectedCompareReport"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Selecione 1 relatório para comparar"
+              appendTo="body"
+              styleClass="rd-dropdown"
+              [disabled]="isLoadingCompare"
+            />
+          </div>
+
+          <div class="rd-filter-group rd-filter-group--action">
+            <label class="rd-label rd-label--invisible">Ação</label>
+            <div class="rd-filter-action-row">
+              <button
+                class="rd-btn rd-btn--amber"
+                [class.rd-btn--loading]="isLoadingCompare"
+                [disabled]="!canCompare"
+                (click)="generateMonthlyComparison()"
+              >
+                <span class="rd-btn__spinner" *ngIf="isLoadingCompare">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                  </svg>
+                </span>
+                <svg *ngIf="!isLoadingCompare" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span>{{ isLoadingCompare ? 'Gerando...' : 'Comparar Meses' }}</span>
+              </button>
+              <button
+                class="rd-btn rd-btn--clear"
+                *ngIf="selectedCompareReport"
+                [disabled]="isLoadingCompare"
+                (click)="clearCompareFilters()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                <span>Limpar</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="rd-compare-pill" *ngIf="selectedCompareReport">
+            <div class="rd-compare-pill__item rd-compare-pill__item--teal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {{ currentMonthLabel }}
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="#94a3b8" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <div class="rd-compare-pill__item rd-compare-pill__item--amber">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {{ prevMonthLabel }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTÓRICO DA SESSÃO ──────────────────────────────────────────── -->
+    <div class="rd-card rd-card--history" *ngIf="history.length > 0">
+      <div class="rd-card__header">
+        <span class="rd-card__header-dot rd-card__header-dot--green"></span>
+        <h2>Histórico da Sessão</h2>
+        <span class="rd-history-count">{{ history.length }} gerado{{ history.length > 1 ? 's' : '' }}</span>
+        <button class="rd-btn-clear-history" (click)="clearAll()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+          </svg>
+          Limpar tudo
+        </button>
+      </div>
+      <div class="rd-history-list">
+        <button
+          class="rd-history-item"
+          *ngFor="let item of history"
+          (click)="reopenFromHistory(item)"
+          [title]="'Reabrir: ' + item.label"
+        >
+          <div class="rd-history-item__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+          </div>
+          <span class="rd-history-item__label">{{ item.label }}</span>
+          <svg class="rd-history-item__arrow" xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── COMPARATIVO MENSAL ───────────────────────────────────────────── -->
+    <div class="rd-card rd-card--compare" *ngIf="comparisonPdfs.length === 2 && !isLoadingCompare">
+      <div class="rd-card__header">
+        <span class="rd-card__header-dot rd-card__header-dot--amber"></span>
+        <h2>Comparativo Mensal — {{ getReportLabel(selectedCompareReport) }}</h2>
+        <button class="rd-btn-close-compare" (click)="clearComparison()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Fechar
+        </button>
+      </div>
+
+      <!-- Mobile -->
+      <div class="rd-compare-mobile" *ngIf="isMobile">
+        <div class="rd-compare-mobile-card" *ngFor="let pdf of comparisonPdfs">
+          <span [class]="'rd-compare-badge rd-compare-badge--' + pdf.tag">{{ pdf.periodLabel }}</span>
+          <div class="rd-compare-mobile-actions">
+            <button class="rd-btn rd-btn--ghost" (click)="openInNewTab(pdf.blobUrl)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              <span>Abrir PDF</span>
+            </button>
+            <a class="rd-btn rd-btn--primary" [href]="pdf.blobUrl" [download]="pdf.filename">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Baixar</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop: split view -->
+      <div class="rd-compare-grid" *ngIf="!isMobile">
+        <div class="rd-compare-panel" *ngFor="let pdf of comparisonPdfs">
+          <div class="rd-compare-label">
+            <span [class]="'rd-compare-badge rd-compare-badge--' + pdf.tag">{{ pdf.periodLabel }}</span>
+            <div class="rd-pdf-actions">
+              <button class="rd-btn-sm rd-btn-sm--ghost" (click)="openInNewTab(pdf.blobUrl)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                Nova aba
+              </button>
+              <a class="rd-btn-sm rd-btn-sm--primary" [href]="pdf.blobUrl" [download]="pdf.filename">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Baixar
+              </a>
+            </div>
+          </div>
+          <iframe [src]="pdf.safeUrl" class="rd-compare-iframe" type="application/pdf"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading comparativo -->
+    <div class="rd-card rd-card--viewer" *ngIf="isLoadingCompare">
+      <div class="rd-loading">
+        <div class="rd-loading__spinner">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+        </div>
+        <p>Gerando comparativo mensal...</p>
+      </div>
+    </div>
+
+    <!-- Loading principal -->
+    <div class="rd-card rd-card--viewer" *ngIf="isLoading">
+      <div class="rd-loading">
+        <div class="rd-loading__spinner">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+        </div>
+        <p>Gerando relatório{{ selectedReports.length > 1 ? 's' : '' }}...</p>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="rd-card rd-card--viewer"
+      *ngIf="!isLoading && !isLoadingCompare && generatedPdfs.length === 0 && comparisonPdfs.length === 0">
+      <div class="rd-empty">
+        <div class="rd-empty__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
+        <h3>Nenhum relatório gerado</h3>
+        <p>Use uma das seções acima para gerar os relatórios PGDO.</p>
+      </div>
+    </div>
+
+    <!-- ── GRADE DE PDFs ──────────────────────────────────────────────── -->
+    <div class="rd-pdf-grid" *ngIf="!isLoading && generatedPdfs.length > 0">
+      <div class="rd-pdf-card" *ngFor="let pdf of generatedPdfs">
+        <div class="rd-pdf-card__header">
+          <div class="rd-pdf-info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <span>{{ pdf.label }}</span>
+            <span class="rd-pdf-period">{{ pdf.periodLabel }}</span>
+          </div>
+          <div class="rd-pdf-actions">
+            <button class="rd-btn-sm rd-btn-sm--ghost" (click)="openInNewTab(pdf.blobUrl)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              Nova aba
+            </button>
+            <a class="rd-btn-sm rd-btn-sm--primary" [href]="pdf.blobUrl" [download]="pdf.filename">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Baixar
+            </a>
+          </div>
+        </div>
+
+        <!-- Desktop: iframe -->
+        <iframe *ngIf="!isMobile" [src]="pdf.safeUrl" class="rd-pdf-iframe" type="application/pdf"></iframe>
+
+        <!-- Mobile: fallback -->
+        <div class="rd-pdf-mobile-fallback" *ngIf="isMobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <p>Visualização inline não disponível neste dispositivo.</p>
+          <div class="rd-pdf-mobile-fallback__actions">
+            <button class="rd-btn rd-btn--ghost" (click)="openInNewTab(pdf.blobUrl)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              <span>Abrir PDF</span>
+            </button>
+            <a class="rd-btn rd-btn--primary" [href]="pdf.blobUrl" [download]="pdf.filename">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Baixar PDF</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

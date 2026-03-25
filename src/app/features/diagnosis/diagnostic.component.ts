@@ -1,42 +1,38 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { forkJoin, Observable } from 'rxjs';
-import { ReportStoreService } from './service/report-store.service';
+import { ReportDiagnosticService } from './service/report.diagnostic.service';
 
-interface ReportOption { label: string; value: string; }
-interface GeneratedPdf { label: string; periodLabel: string; safeUrl: SafeResourceUrl | null; blobUrl: string; filename: string; }
+interface ReportOption   { label: string; value: string; }
+interface GeneratedPdf   { label: string; periodLabel: string; safeUrl: SafeResourceUrl | null; blobUrl: string; filename: string; }
 interface ComparisonPdf extends GeneratedPdf { tag: 'current' | 'previous'; }
-interface HistoryItem { label: string; blobUrl: string; safeUrl: SafeResourceUrl | null; filename: string; }
+interface HistoryItem    { label: string; blobUrl: string; safeUrl: SafeResourceUrl | null; filename: string; }
 
 @Component({
-  selector: 'app-report-store',
+  selector: 'app-diagnostic',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
-    CalendarModule,
+    DatePickerModule,
     MultiSelectModule,
     DropdownModule,
     ButtonModule,
     ToastModule,
-    TooltipModule,
   ],
   providers: [MessageService],
-  templateUrl: './report-store.component.html',
-  styleUrl: './report-store.component.scss',
+  templateUrl: './diagnostic.component.html',
+  styleUrl: './diagnostic.component.scss',
 })
-export class ReportStoreComponent implements OnDestroy {
+export class DiagnosticComponent implements OnDestroy {
 
   // ── Seção 1: Gerar por período ───────────────────────────────────────────
   dateRange: Date[] | null = null;
@@ -49,9 +45,9 @@ export class ReportStoreComponent implements OnDestroy {
 
   // ── Shared ───────────────────────────────────────────────────────────────
   today = new Date();
-  generatedPdfs: GeneratedPdf[] = [];
-  comparisonPdfs: ComparisonPdf[] = [];
-  history: HistoryItem[] = [];
+  generatedPdfs: GeneratedPdf[]    = [];
+  comparisonPdfs: ComparisonPdf[]  = [];
+  history: HistoryItem[]           = [];
 
   readonly isMobile: boolean = /iPhone|iPad|iPod|Android|Mobile|Tablet/i.test(navigator.userAgent);
 
@@ -61,30 +57,22 @@ export class ReportStoreComponent implements OnDestroy {
   readonly prevMonthLabel: string;
 
   reportOptions: ReportOption[] = [
-    { label: 'Ranking de Vendas', value: 'vendas' },
-    { label: 'Ranking de Upgrades', value: 'upgrade' },
-    { label: 'Ranking de Downgrades', value: 'downgrade' },
-    { label: 'Ranking de Cancelamentos', value: 'cancel' },
-    { label: 'Ranking por Motivo de Cancel.', value: 'cancel_reason' },
-    { label: 'Ranking de Transferências', value: 'transferOwnership' },
-    { label: 'Ranking de Suspensões', value: 'suspensao' },
-    { label: 'Ranking de Mudança de Endereço', value: 'mudancaEndereco' },
-    { label: 'Ranking de Mudança de Vencimento', value: 'mudancaVencimento' },
-    { label: 'Ranking de Envio de Pagamento', value: 'envioPagamento' },
-    { label: 'Ranking de Lib. de Confiança', value: 'liberacaoConfianca' },
-    { label: 'Comparativo de Cancelamentos', value: 'analiticoCancelamento' },
-    { label: 'Comparativo de Vendas', value: 'analiticoVendas' },
+    { label: 'Volume Geral de OS',          value: 'overralVolumeOs'     },
+    { label: 'Distribuição de OS',           value: 'distribuitionOs'     },
+    { label: 'Equipe de Operação',           value: 'operationCrew'       },
+    { label: 'Distribuição por Tipo de OS',  value: 'osTypeDistribution'  },
+    { label: 'Tempo e Eficiência',           value: 'timeEfficiency'      },
   ];
 
   constructor(
-    private reportService: ReportStoreService,
+    private reportService: ReportDiagnosticService,
     private sanitizer: DomSanitizer,
     private messageService: MessageService,
   ) {
-    const now = new Date();
+    const now  = new Date();
     const opts = { month: 'long', year: 'numeric' } as const;
-    this.currentMonthLabel = new Date(now.getFullYear(), now.getMonth(), 1).toLocaleDateString('pt-BR', opts);
-    this.prevMonthLabel = new Date(now.getFullYear(), now.getMonth() - 1, 1).toLocaleDateString('pt-BR', opts);
+    this.currentMonthLabel = new Date(now.getFullYear(), now.getMonth(),     1).toLocaleDateString('pt-BR', opts);
+    this.prevMonthLabel    = new Date(now.getFullYear(), now.getMonth() - 1, 1).toLocaleDateString('pt-BR', opts);
   }
 
   // ── Validações ────────────────────────────────────────────────────────────
@@ -107,15 +95,15 @@ export class ReportStoreComponent implements OnDestroy {
   generateReports(): void {
     if (!this.canGenerate) return;
 
-    this.isLoading = true;
+    this.isLoading     = true;
     this.generatedPdfs = [];
 
-    const s = this._fmt(this.dateRange![0]);
-    const e = this._fmt(this.dateRange![1]);
+    const s           = this._fmt(this.dateRange![0]);
+    const e           = this._fmt(this.dateRange![1]);
     const periodLabel = `${this._display(this.dateRange![0])} — ${this._display(this.dateRange![1])}`;
 
     const requests: Record<string, Observable<Blob>> = {};
-    this.selectedReports.forEach(r => requests[r] = this._getRequest(r, s, e));
+    this.selectedReports.forEach(r => (requests[r] = this._getRequest(r, s, e)));
 
     forkJoin(requests).subscribe({
       next: (results) => {
@@ -127,7 +115,7 @@ export class ReportStoreComponent implements OnDestroy {
         this.isLoading = false;
         this.messageService.add({
           severity: 'success', summary: 'Relatórios gerados',
-          detail: `${this.generatedPdfs.length} relatório(s) gerado(s) com sucesso.`, life: 3000
+          detail: `${this.generatedPdfs.length} relatório(s) gerado(s) com sucesso.`, life: 3000,
         });
       },
       error: (err) => {
@@ -135,7 +123,7 @@ export class ReportStoreComponent implements OnDestroy {
         this.isLoading = false;
         this.messageService.add({
           severity: 'error', summary: 'Erro ao gerar',
-          detail: 'Não foi possível gerar um ou mais relatórios.', life: 5000
+          detail: 'Não foi possível gerar um ou mais relatórios.', life: 5000,
         });
       },
     });
@@ -146,19 +134,19 @@ export class ReportStoreComponent implements OnDestroy {
     if (!this.canCompare) return;
 
     this.isLoadingCompare = true;
-    this.comparisonPdfs = [];
+    this.comparisonPdfs   = [];
 
-    const now = new Date();
-    const currFirst = new Date(now.getFullYear(), now.getMonth(), 1);
-    const currLast = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const now       = new Date();
+    const currFirst = new Date(now.getFullYear(), now.getMonth(),     1);
+    const currLast  = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     const prevFirst = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const prevLast = new Date(now.getFullYear(), now.getMonth(), 0);
+    const prevLast  = new Date(now.getFullYear(), now.getMonth(),     0);
 
     const s1 = this._fmt(currFirst); const e1 = this._fmt(currLast);
     const s2 = this._fmt(prevFirst); const e2 = this._fmt(prevLast);
 
     forkJoin({
-      current: this._getRequest(this.selectedCompareReport!, s1, e1),
+      current:  this._getRequest(this.selectedCompareReport!, s1, e1),
       previous: this._getRequest(this.selectedCompareReport!, s2, e2),
     }).subscribe({
       next: ({ current, previous }) => {
@@ -166,14 +154,14 @@ export class ReportStoreComponent implements OnDestroy {
         const prevLabel = `${this._display(prevFirst)} — ${this._display(prevLast)}`;
 
         this.comparisonPdfs = [
-          { ...this._makePdf(this.selectedCompareReport!, current, s1, e1, currLabel), tag: 'current' },
+          { ...this._makePdf(this.selectedCompareReport!, current,  s1, e1, currLabel), tag: 'current'  },
           { ...this._makePdf(this.selectedCompareReport!, previous, s2, e2, prevLabel), tag: 'previous' },
         ];
 
         this.isLoadingCompare = false;
         this.messageService.add({
           severity: 'success', summary: 'Comparativo gerado',
-          detail: `${this.currentMonthLabel} vs ${this.prevMonthLabel}.`, life: 4000
+          detail: `${this.currentMonthLabel} vs ${this.prevMonthLabel}.`, life: 4000,
         });
       },
       error: (err) => {
@@ -181,7 +169,7 @@ export class ReportStoreComponent implements OnDestroy {
         this.isLoadingCompare = false;
         this.messageService.add({
           severity: 'error', summary: 'Erro no comparativo',
-          detail: 'Não foi possível gerar o comparativo mensal.', life: 5000
+          detail: 'Não foi possível gerar o comparativo mensal.', life: 5000,
         });
       },
     });
@@ -191,7 +179,7 @@ export class ReportStoreComponent implements OnDestroy {
   reopenFromHistory(item: HistoryItem): void {
     this.generatedPdfs = [{
       label: item.label, periodLabel: '',
-      safeUrl: item.safeUrl, blobUrl: item.blobUrl, filename: item.filename
+      safeUrl: item.safeUrl, blobUrl: item.blobUrl, filename: item.filename,
     }];
   }
 
@@ -200,10 +188,8 @@ export class ReportStoreComponent implements OnDestroy {
     this._revokeAll();
   }
 
-  clearFilters(): void { this.dateRange = null; this.selectedReports = []; }
-
-  clearComparison(): void { this.comparisonPdfs = []; }
-
+  clearFilters():        void { this.dateRange = null; this.selectedReports = []; }
+  clearComparison():     void { this.comparisonPdfs = []; }
   clearCompareFilters(): void { this.selectedCompareReport = null; }
 
   // ── Helpers públicos ──────────────────────────────────────────────────────
@@ -220,7 +206,7 @@ export class ReportStoreComponent implements OnDestroy {
     this._allBlobUrls.push(blobUrl);
     return {
       label: this.getReportLabel(key), periodLabel, safeUrl, blobUrl,
-      filename: `relatorio-loja-${key}-${s}-a-${e}.pdf`
+      filename: `relatorio-pgdo-${key}-${s}-a-${e}.pdf`,
     };
   }
 
@@ -231,19 +217,11 @@ export class ReportStoreComponent implements OnDestroy {
 
   private _getRequest(key: string, s: string, e: string): Observable<Blob> {
     const map: Record<string, Observable<Blob>> = {
-      'vendas': this.reportService.getVendasRankingReport(s, e),
-      'upgrade': this.reportService.getUpgradeRankingReport(s, e),
-      'downgrade': this.reportService.getDowngradeRankingReport(s, e),
-      'cancel': this.reportService.getCancelRankingReport(s, e),
-      'cancel_reason': this.reportService.getCancelReasonRankingReport(s, e),
-      'transferOwnership': this.reportService.getTransferOwnershipRankingReport(s, e),
-      'suspensao': this.reportService.getSuspensionRankingReport(s, e),
-      'mudancaEndereco': this.reportService.getUpdateAddressRankingReport(s, e),
-      'mudancaVencimento': this.reportService.getDateTransferRankingReport(s, e),
-      'envioPagamento': this.reportService.getPaymentShipmentRankingReport(s, e),
-      'liberacaoConfianca': this.reportService.getTrustReleaseRankingReport(s, e),
-      'analiticoCancelamento': this.reportService.getAnaliticoCancelamentoReport(s, e),
-      'analiticoVendas': this.reportService.getAnaliticoVendasReport(s, e),
+      'overralVolumeOs':    this.reportService.getOverralVolumeOsReport(s, e),
+      'distribuitionOs':    this.reportService.getDistribuitionOsReport(s, e),
+      'operationCrew':      this.reportService.getOperationCrewReport(s, e),
+      'osTypeDistribution': this.reportService.getOsTypeDistributionReport(s, e),
+      'timeEfficiency':     this.reportService.getTimeEfficiencyReport(s, e),
     };
     return map[key];
   }
