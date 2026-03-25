@@ -170,7 +170,7 @@ export const routes: Routes = [
       {
         path: "relatorios/pgdo",
         loadComponent: () =>
-          import("./features/diagnosis/pages/diagnostic/diagnostic.component").then(
+          import("./features/diagnosis/diagnostic.component").then(
             (m) => m.DiagnosticComponent,
           ),
         title: "Relatório Pgdo",
