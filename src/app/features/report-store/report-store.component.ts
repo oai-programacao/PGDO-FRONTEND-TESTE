@@ -1,7 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -24,7 +23,6 @@ interface HistoryItem { label: string; blobUrl: string; safeUrl: SafeResourceUrl
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     CalendarModule,
     MultiSelectModule,
     DropdownModule,
